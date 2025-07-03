@@ -6,16 +6,16 @@ export class Particle extends Entity {
         super(x, y);
 
         // 外观属性
-        this.size = Math.random() * 8 + 2;
+        this.size = Math.random() * 8 + 2; // 2~10
         this.color = color;
 
         // 运动属性
-        this.speedX = Math.random() * 200 - 100;
-        this.speedY = Math.random() * 200 - 100;
+        this.speedX = Math.random() * 200 - 100; // 100~-100
+        this.speedY = Math.random() * 200 - 100; // 100~-100
 
         // 生命周期属性
         this.life = 1.0;
-        this.decay = Math.random() * 0.05 + 0.01;
+        this.decay = Math.random() * 0.05 + 0.01; // 0.01 ~ 0.06
     }
 
     // 更新粒子状态
