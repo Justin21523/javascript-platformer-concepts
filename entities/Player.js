@@ -1,5 +1,6 @@
 // entities/Player.js - 玩家角色
 import { Entity } from './Entity.js';
+import { Platform  } from './Platform.js';
 import { PhysicsComponent } from '../components/PhysicsComponent.js';
 import { ColliderComponent } from '../components/ColliderComponent.js';
 import { PlayerController } from '../components/PlayerController.js';
@@ -17,7 +18,8 @@ export class Player extends Entity {
         this.addComponent(new PhysicsComponent(this, {
             gravity: 1500,
             friction: 0.9,
-            maxSpeed: 400
+            maxSpeedX: 400,
+            jumpForce: -600
         }));
 
         this.addComponent(new ColliderComponent(this, {
@@ -156,19 +158,41 @@ export class Player extends Entity {
         }
     }
 
+    onCollision(other, deltaTime) {
+        const physics = this.getComponent(PhysicsComponent);
+        const collider = this.getComponent(ColliderComponent);
+        const otherCollider = other.getComponent(ColliderComponent);
 
-    // 以下可能不需要用了
-    // 移动方法
-    move(direction) {
-        this.velocityX = direction * this.moveSpeed;
-    }
+        // 平台碰撞
+        if (other instanceof Platform) {
+            // 基於時間的落地檢測
+            const wasFalling = physics.velocity.y > 50 * deltaTime;
+            const landedOnTop = collider.bottom >= otherCollider.top &&
+                                collider.bottom <= otherCollider.top + 10 * deltaTime;
 
-    // 跳跃方法
-    jump() {
-        if (!this.isJumping) {
-            this.velocityY = this.jumpForce;
-            this.isJumping = true;
-            this.isOnGround = false;
+            if (landedOnTop && wasFalling) {
+                physics.isOnGround = true;
+                physics.velocity.y = 0;
+                this.y = other.y - this.height;
+            }
+        }
+
+
+        // 敵人碰撞
+        if (other instanceof Enemy) {
+            // 受傷無敵時間（基於遊戲時間）
+            const now = this.scene.game.time.gameTime;
+            if (!this.lastHitTime || now - this.lastHitTime > 1.0) {
+                this.takeDamage(10);
+                this.lastHitTime = now;
+
+                // 擊退效果（時間縮放敏感）
+                physics.applyForce(
+                    other.x > this.x ? -300 * deltaTime : 300 * deltaTime,
+                    -200 * deltaTime
+                );
+            }
         }
     }
+
 }

@@ -7,6 +7,11 @@ export class Time {
         this.deltaTime = 0;      // 帧间时间差（秒）
         this.scaledTime = 0;     // 经过时间缩放的时间
         this.timeScale = 1.0;    // 时间缩放因子
+
+        // 新增除錯相關屬性
+        this.frameCount = 0;     // 幀計數器
+        this.frameTimer = 0;     // 幀計時器
+        this.fps = 0;            // 當前FPS
     }
 
     /**
@@ -17,6 +22,16 @@ export class Time {
         this.deltaTime = deltaTime;
         this.gameTime += deltaTime;
         this.scaledTime = deltaTime * this.timeScale;
+
+        // 更新FPS計算
+        this.frameCount++;
+        this.frameTimer += deltaTime;
+
+        if (this.frameTimer >= 1) {
+        this.fps = this.frameCount;
+        this.frameCount = 0;
+        this.frameTimer = 0;
+        }
     }
 
     /**

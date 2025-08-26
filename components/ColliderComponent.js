@@ -6,7 +6,6 @@ import { Component } from './Component.js';
 export class ColliderComponent extends Component {
     constructor(entity, options = {}) {
         super(entity);
-
         // 碰撞属性
         this.type = options.type || 'box';    // 碰撞器类型 (box/circle)
         this.width = options.width || 0;      // 碰撞宽度
@@ -17,6 +16,23 @@ export class ColliderComponent extends Component {
             y: options.offsetY || 0
         };
     }
+
+    /**
+     * 获取碰撞器边界
+     */
+    get left() {
+        return this.entity.x + this.offset.x;
+    }
+    get right() {
+        return this.left + this.width;
+    }
+    get top() {
+        return this.entity.y + this.offset.y;
+    }
+    get bottom() {
+        return this.top + this.height;
+     }
+
 
     /**
      * 检查与另一个碰撞器的碰撞
@@ -39,21 +55,12 @@ export class ColliderComponent extends Component {
             this.left < other.right &&
             this.right > other.left &&
             this.top < other.bottom &&
-            this.bottom > other.top
+            this.bottom > other.to
         );
     }
 
-    /**
-     * 获取碰撞器边界
-     */
-    get left() { return this.entity.x + this.offset.x; }
-    get right() { return this.left + this.width; }
-    get top() { return this.entity.y + this.offset.y; }
-    get bottom() { return this.top + this.height; }
 
-    /**
-     * 绘制碰撞器边界（调试用）
-     */
+
     draw(ctx) {
         if (!this.enabled) return;
 

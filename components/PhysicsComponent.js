@@ -6,34 +6,35 @@ import { Component } from './Component.js';
 export class PhysicsComponent extends Component {
     constructor(entity, options = {}) {
         super(entity);
-
         // 物理属性
         this.velocity = { x: 0, y: 0 };          // 速度向量
         this.gravity = options.gravity || 1500;   // 重力加速度 (像素/秒²)
         this.friction = options.friction || 0.9;  // 地面摩擦系数
-        this.maxSpeed = options.maxSpeed || 400;  // 最大移动速度
+        this.maxSpeedX = options.maxSpeedX || 400;  // 最大移动速度X
+        this.jumpForce = options.jumpForce || 0;
         this.isOnGround = false;                  // 是否在地面
     }
 
-    update(deltaTime) {
+    update() {
         if (!this.enabled) return;
 
-        // 应用重力（如果不在地面）
+        // 獲取時間系統實例 (需通過場景取得)
+        const timeSystem = this.entity.scene.game.time;
+
+        // 使用 scaledTime 確保受時間縮放影響
+        const deltaTime = timeSystem.scaledTime;
+
+        // 物理計算
         if (!this.isOnGround) {
             this.velocity.y += this.gravity * deltaTime;
+        } else {
+            this.velocity.x *= Math.pow(this.friction, deltaTime * 60); // 幀率補償
         }
 
-        // 应用地面摩擦（如果在地面）
-        if (this.isOnGround) {
-            this.velocity.x *= this.friction;
-        }
+        // 水平速度限制
+        this.velocity.x = Math.max(-this.maxSpeedX, Math.min(this.velocity.x, this.maxSpeedX));
 
-        // 限制最大速度
-        if (Math.abs(this.velocity.x) > this.maxSpeed) {
-            this.velocity.x = Math.sign(this.velocity.x) * this.maxSpeed;
-        }
-
-        // 更新实体位置
+        // 更新實體位置
         this.entity.x += this.velocity.x * deltaTime;
         this.entity.y += this.velocity.y * deltaTime;
     }
@@ -57,4 +58,13 @@ export class PhysicsComponent extends Component {
         this.velocity.x = x;
         this.velocity.y = y;
     }
+
+    // 跳躍方法供控制器呼叫
+    jump() {
+        if (this.isOnGround) {
+        this.velocity.y = this.jumpForce;
+        this.isOnGround = false;
+        }
+    }
+
 }

@@ -2,10 +2,20 @@
 import { Player } from '../entities/Player.js';
 import { Platform } from '../entities/Platform.js';
 import { Particle } from '../entities/Particle.js';
+import { PhysicsSystem } from '../systems/PhysicsSystem.js';
+import { LevelHandler } from '../core/LevelHandler.js';
+import { Scene } from "../core/Scene.js";
 
 
-export class GameScene {
+export class GameScene extends Scene {
     constructor(canvas, ctx, input, time) {
+        super();
+        this.player = null;
+        this.gravity = 1500;
+        this.backgroundColor = "#87CEEB"; // 天空藍
+        this.groundColor = "#2E8B57";     // 大地綠
+
+        // 以下可能不需要
         this.canvas = canvas;
         this.ctx = ctx;
         this.input = input;
@@ -20,11 +30,20 @@ export class GameScene {
         this.gameTime = 0; // 场景局部时间（可选）
         // 调试模式状态
         this.debugMode = true; // 默认开启调试模式
+
+        this.physicsSystem = new PhysicsSystem();
+        this.levelHandler = new LevelHandler();
+
+        // 時間敏感的實體生成
+        this.lastSpawnTime = 0;
     }
 
     // 初始化场景
     init() {
         this.entities = [];
+
+        this.levelHandler.loadLevels(levelData);
+        this.levelHandler.loadCurrentLevel(this);
 
         // 创建玩家
         this.player = new Player(100, 200);
@@ -54,6 +73,9 @@ export class GameScene {
 
         // 处理玩家输入
         this.handlePlayerInput();
+
+        // 物理系統更新
+        this.physicsSystem.update(this.entities, deltaTime);
 
         // 更新所有实体
         this.entities.forEach(entity => {
@@ -180,6 +202,30 @@ export class GameScene {
         });
     }
 
+    // 获取实体数量
+    get entityCount() {
+        return this.entities.length;
+    }
+
+    // 當玩家完成關卡時
+    completeLevel() {
+        if (this.levelHandler.nextLevel()) {
+            this.levelHandler.loadCurrentLevel(this);
+        } else {
+            // 遊戲通關
+        }
+    }
+
+    spawnEnemy() {
+        const enemy = new Enemy(/* ... */);
+
+        // 根據時間縮放調整敵人速度
+        const speed = 100 * this.game.time.timeScale;
+        enemy.getComponent(PhysicsComponent).maxSpeedX = speed;
+
+        this.addEntity(enemy);
+    }
+
     // 渲染场景
     render() {
         // 清除画布
@@ -264,11 +310,6 @@ export class GameScene {
         }
     }
 
-    // 获取实体数量
-    get entityCount() {
-        return this.entities.length;
-    }
-
     drawWaveVisualization() {
         const ctx = this.ctx;
         const startX = 400;
@@ -311,4 +352,5 @@ export class GameScene {
         ctx.fillText('正弦波可视化', startX, startY + height/2 + 20);
         ctx.fillText(`频率: 2.0 | 时间: ${this.time.gameTime.toFixed(1)}s`, startX, startY + height/2 + 35);
     }
+
 }
