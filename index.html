@@ -1,106 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Platformer 开发：游戏循环原理</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vanilla Platformer JS</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>2D Platformer 开发：游戏循环原理</h1>
-        <p class="subtitle">深入理解游戏的心脏机制 - 使用纯原生JavaScript实现</p>
-    </header>
-
-    <div class="container">
-        <div class="game-container">
-            <h2 class="panel-title">游戏循环可视化</h2>
-            <canvas id="gameCanvas" width="800" height="600"></canvas>
-
-            <div class="controls">
-                <div class="control-group">
-                    <h3 class="control-title">游戏控制</h3>
-                    <button id="pauseBtn">暂停/继续</button>
-                    <button id="resetBtn">重设场景</button>
-                </div>
-
-                <div class="control-group">
-                    <h3 class="control-title">速度控制</h3>
-                    <input type="range" id="speedSlider" min="0" max="200" value="100">
-                    <div>游戏速度: <span id="speedValue">100%</span></div>
-                </div>
-
-                <div class="control-group">
-                    <div class="game-ui">
-                        <div id="score">分數: 0</div>
-                        <div id="lives">生命: 3</div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="info-panel">
-            <h2 class="panel-title">游戏循环监控</h2>
-
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="fpsCounter">0</div>
-                    <div class="stat-label">FPS (帧数/秒)</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-value" id="frameTime">0ms</div>
-                    <div class="stat-label">帧处理时间</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-value" id="deltaTime">0.000s</div>
-                    <div class="stat-label">Delta Time (Δt)</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-value" id="entityCount">0</div>
-                    <div class="stat-label">活动实体数</div>
-                </div>
-            </div>
-
-            <div class="concept-explanation">
-                <h3>游戏循环核心概念</h3>
-                <p>游戏循环是游戏开发中最核心的概念，它是一个持续运行的过程：</p>
-
-                <div class="code-block">
-                    <span class="code-keyword">function</span> <span class="code-function">gameLoop</span>(<span class="code-keyword">timestamp</span>) {<br>
-                    &nbsp;&nbsp;<span class="code-comment">// 1. 计算时间差 (Delta Time)</span><br>
-                    &nbsp;&nbsp;<span class="code-keyword">const</span> deltaTime = (timestamp - lastTime) / 1000;<br><br>
-
-                    &nbsp;&nbsp;<span class="code-comment">// 2. 处理玩家输入</span><br>
-                    &nbsp;&nbsp;<span class="code-function">processInput</span>(deltaTime);<br><br>
-
-                    &nbsp;&nbsp;<span class="code-comment">// 3. 更新游戏状态</span><br>
-                    &nbsp;&nbsp;<span class="code-function">updateGame</span>(deltaTime);<br><br>
-
-                    &nbsp;&nbsp;<span class="code-comment">// 4. 渲染画面</span><br>
-                    &nbsp;&nbsp;<span class="code-function">renderGame</span>();<br><br>
-
-                    &nbsp;&nbsp;<span class="code-comment">// 5. 请求下一帧</span><br>
-                    &nbsp;&nbsp;lastTime = timestamp;<br>
-                    &nbsp;&nbsp;requestAnimationFrame(gameLoop);<br>
-                    }
-                </div>
-
-                <p><span class="highlight">Delta Time (Δt)</span> 是游戏循环的关键，它表示上一帧到当前帧经过的时间（以秒为单位）。使用 Δt 可以确保游戏在不同帧率的设备上以相同的速度运行。</p>
-
-                <p>按键控制：<span class="key">←</span> <span class="key">→</span> 移动角色 | <span class="key">空格键</span> 跳跃</p>
-            </div>
-        </div>
+  <canvas id="gameCanvas"></canvas>
+  <div id="loadingScreen">
+    <div class="loading-text">Loading...</div>
+    <div class="loading-bar">
+      <div class="loading-progress" id="loadingProgress"></div>
     </div>
-
-    <footer>
-        <p>2D Platformer 开发教学系列 - 游戏循环原理 | 使用纯原生JavaScript实现</p>
-    </footer>
-
-    <!-- 模块化导入 -->
-    <script type="module" src="main.js"></script>
+  </div>
+  <div id="debugOverlay" class="debug-overlay hidden"></div>
+  
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

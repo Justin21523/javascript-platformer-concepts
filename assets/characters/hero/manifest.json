@@ -1,0 +1,63 @@
+{
+  "name": "hero",
+  "type": "character",
+  "aabb": { "w": 16, "h": 24 },
+  "actions": {
+    "idle": {
+      "folder": "idle",
+      "frames": ["idle_01.png", "idle_02.png", "idle_03.png", "idle_04.png"],
+      "frameRate": 8,
+      "loop": true,
+      "origin": [8, 24]
+    },
+    "run": {
+      "folder": "run", 
+      "frames": ["run_01.png", "run_02.png", "run_03.png", "run_04.png", "run_05.png", "run_06.png"],
+      "frameRate": 12,
+      "loop": true,
+      "origin": [8, 24]
+    },
+    "jump": {
+      "folder": "jump",
+      "frames": ["jump_01.png", "jump_02.png", "jump_03.png"],
+      "frameRate": 10,
+      "loop": false,
+      "origin": [8, 24]
+    },
+    "fall": {
+      "folder": "fall",
+      "frames": ["fall_01.png", "fall_02.png"],
+      "frameRate": 6,
+      "loop": true,
+      "origin": [8, 24]
+    },
+    "attack": {
+      "folder": "attack",
+      "frames": ["attack_01.png", "attack_02.png", "attack_03.png"],
+      "frameRate": 15,
+      "loop": false,
+      "origin": [8, 24],
+      "onComplete": "idle"
+    },
+    "hurt": {
+      "folder": "hurt",
+      "frames": ["hurt_01.png", "hurt_02.png"],
+      "frameRate": 8,
+      "loop": false,
+      "origin": [8, 24],
+      "onComplete": "idle"
+    }
+  },
+  "physics": {
+    "gravityScale": 1.0,
+    "frictionX": 0.8,
+    "maxSpeedX": 180,
+    "maxSpeedY": 500
+  },
+  "gameplay": {
+    "maxHealth": 3,
+    "invincibleTime": 1.5,
+    "attackDamage": 1,
+    "attackRange": 20
+  }
+}
