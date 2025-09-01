@@ -36,6 +36,7 @@ export class TileMap {
     const right = Math.floor((x + w - 1) / this.tileSize);
     const top = Math.floor(y / this.tileSize);
     const bottom = Math.floor((y + h - 1) / this.tileSize);
+    const tiles = [];
 
     for (let ty = top; ty <= bottom; ty++) {
       for (let tx = left; tx <= right; tx++) {
