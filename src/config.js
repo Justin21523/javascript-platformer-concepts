@@ -7,12 +7,16 @@ export const PHYSICS = Object.freeze({
   MAX_RUN_SPEED: 180, // px/s
   JUMP_VELOCITY: -520, // px/s (負數 = 向上)
   FRICTION_X: 0.85, // 地面摩擦
+  COYOTE_TIME: 0.08,
+  JUMP_BUFFER: 0.08,
 });
 
 export const RENDER = Object.freeze({
-  TILE_SIZE: 16,
   CANVAS_WIDTH: 800,
   CANVAS_HEIGHT: 600,
+  BACKGROUND_COLOR: "#222222",
+  TILE_COLOR: "#666666",
+  PLAYER_COLOR: "#FFFFFF",
 });
 
 // src/config.js (添加)
