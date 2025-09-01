@@ -14,6 +14,7 @@ export class RenderSystem {
   }
 
   draw() {
+    const { ctx } = this;
     // 清除畫面
     ctx.fillStyle = RENDER.BACKGROUND_COLOR;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
