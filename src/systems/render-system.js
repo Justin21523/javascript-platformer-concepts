@@ -3,51 +3,65 @@ import { COMPONENT_TYPES, components } from "../ecs/components.js";
 import { RENDER } from "../config.js";
 
 export class RenderSystem {
-  update(dt) {
-    const ctx = this.world.ctx;
+  constructor(ctx, tileMap) {
+    this.ctx = ctx;
+    this.tileMap = tileMap;
+    this.world = null; // 將由 main.js 設定
+  }
 
-    // 清空畫布
-    ctx.fillStyle = "#1a1a2e";
+  setWorld(world) {
+    this.world = world;
+  }
+
+  draw() {
+    // 清除畫面
+    ctx.fillStyle = RENDER.BACKGROUND_COLOR;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // 繪製所有可渲染實體
-    const entities = this.world.query(
-      COMPONENT_TYPES.TRANSFORM,
-      COMPONENT_TYPES.RENDERABLE
-    );
+    // 繪製 tiles
+    this.drawTiles();
 
-    for (const entityId of entities) {
-      const transform = components.Transform[entityId];
-      const renderable = components.Renderable[entityId];
-
-      if (!renderable.visible) continue;
-
-      // 暫時畫白色矩形代表玩家
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(
-        Math.round(transform.x - renderable.originX),
-        Math.round(transform.y - renderable.originY),
-        16, // 寬度
-        24 // 高度
-      );
-
-      // 畫朝向箭頭
-      const state = components.CharacterState[entityId];
-      if (state) {
-        ctx.fillStyle =
-          state.action === "jump"
-            ? "#00ff00"
-            : state.action === "fall"
-            ? "#ff8800"
-            : state.action === "run"
-            ? "#0088ff"
-            : "#ffffff";
-
-        const arrowX = transform.x + (state.facing > 0 ? 12 : -12);
-        const arrowY = transform.y - 10;
-
-        ctx.fillRect(arrowX, arrowY, 4, 4);
+    // 繪製實體
+    if (this.world) {
+      const entities = this.world.query(["Transform", "Renderable"]);
+      for (const entity of entities) {
+        this.drawEntity(entity);
       }
     }
+  }
+
+  drawTiles() {
+    const { ctx, tileMap } = this;
+    ctx.fillStyle = RENDER.TILE_COLOR;
+
+    for (let y = 0; y < tileMap.height; y++) {
+      for (let x = 0; x < tileMap.width; x++) {
+        if (tileMap.isSolid(x, y)) {
+          ctx.fillRect(
+            x * tileMap.tileSize,
+            y * tileMap.tileSize,
+            tileMap.tileSize,
+            tileMap.tileSize
+          );
+        }
+      }
+    }
+  }
+
+  drawEntity(entity) {
+    const transform = this.world.getComponent(entity, "Transform");
+    const renderable = this.world.getComponent(entity, "Renderable");
+
+    if (!transform || !renderable) return;
+
+    const { ctx } = this;
+    ctx.fillStyle = renderable.color || RENDER.PLAYER_COLOR;
+
+    // 繪製實體 (假設玩家是 16x24)
+    const aabb = this.world.getComponent(entity, "AABB");
+    const w = aabb ? aabb.w : 16;
+    const h = aabb ? aabb.h : 24;
+
+    ctx.fillRect(Math.round(transform.x), Math.round(transform.y), w, h);
   }
 }
