@@ -37,17 +37,20 @@ export class CollisionSystem {
     const velocity = this.world.getComponent(entity, "Velocity");
     const aabb = this.world.getComponent(entity, "AABB");
 
+    if (!transform || !velocity || !aabb) return;
+
     // X 軸碰撞解算 (先處理水平移動)
     const nextX = transform.x + velocity.vx * dt;
-    if (this.checkXCollision(entity, nextX, transform.y, aabb, velocity)) {
+    if (this.checkXCollision(entity, nextX, transform.y, aabb)) {
       this.flags.hitWall.set(entity, true);
+      velocity.vx = 0; // 停止水平速度
     } else {
       transform.x = nextX;
     }
 
     // Y 軸碰撞解算 (再處理垂直移動)
     const nextY = transform.y + velocity.vy * dt;
-    if (this.checkYCollision(entity, transform.x, nextY, aabb, velocity)) {
+    if (this.checkYCollision(entity, transform.x, nextY, aabb)) {
       // 判斷碰撞方向
       if (velocity.vy > 0) {
         // 向下碰撞 = 落地
@@ -56,6 +59,7 @@ export class CollisionSystem {
         // 向上碰撞 = 撞天花板
         this.flags.hitCeil.set(entity, true);
       }
+      velocity.vy = 0; // 停止垂直速度
     } else {
       transform.y = nextY;
       // 沒有 Y 軸碰撞表示不在地面
@@ -97,8 +101,6 @@ export class CollisionSystem {
           transform.x = tile.x + tile.w - aabb.ox + COLLISION.EPSILON;
         }
 
-        // 停止水平速度
-        velocity.vx = 0;
         return true;
       }
     }
@@ -128,6 +130,7 @@ export class CollisionSystem {
       ) {
         // 計算 MTV 進行位置修正
         const transform = this.world.getComponent(entity, "Transform");
+        const velocity = this.world.getComponent(entity, "Velocity"); // 在這裡獲取 velocity
         const entityCenterY = y + aabb.oy + aabb.h / 2;
         const tileCenterY = tile.y + tile.h / 2;
 
@@ -139,8 +142,6 @@ export class CollisionSystem {
           transform.y = tile.y + tile.h - aabb.oy + COLLISION.EPSILON;
         }
 
-        // 停止垂直速度
-        velocity.vy = 0;
         return true;
       }
     }
