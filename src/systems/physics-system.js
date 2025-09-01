@@ -1,49 +1,73 @@
 // src/systems/physics-system.js
 import { PHYSICS } from "../config.js";
-import { COMPONENT_TYPES, components } from "../ecs/components.js";
+import { clamp, sign } from "../core/math.js";
 
 export class PhysicsSystem {
+  constructor(world) {
+    this.world = world;
+  }
+
   update(dt) {
-    // 查詢有 Transform + Velocity + PhysicsBody 的實體
-    const entities = this.world.query(
-      COMPONENT_TYPES.TRANSFORM,
-      COMPONENT_TYPES.VELOCITY,
-      COMPONENT_TYPES.PHYSICS_BODY
-    );
+    // 處理所有具有物理組件的實體
+    const entities = this.world.query(["Transform", "Velocity", "PhysicsBody"]);
 
     for (const entityId of entities) {
-      const transform = components.Transform[entityId];
-      const velocity = components.Velocity[entityId];
-      const body = components.PhysicsBody[entityId];
-
-      // 重力
-      velocity.vy += PHYSICS.GRAVITY_Y * body.gravityScale * dt;
-
-      // 速度限制
-      velocity.vx = Math.max(
-        -body.maxSpeedX,
-        Math.min(body.maxSpeedX, velocity.vx)
-      );
-      velocity.vy = Math.max(
-        -body.maxSpeedY,
-        Math.min(body.maxSpeedY, velocity.vy)
-      );
-
-      // 半隱式歐拉積分: v += a*dt; x += v*dt
-      transform.x += velocity.vx * dt;
-      transform.y += velocity.vy * dt;
+      this.updatePhysics(entityId, dt);
     }
   }
 
-  // 工具方法：逼近目標速度
-  approach(current, target, accel, dt) {
-    const diff = target - current;
-    const maxChange = accel * dt;
+  updatePhysics(entityId, dt) {
+    const transform = this.world.getComponent(entityId, "Transform");
+    const velocity = this.world.getComponent(entityId, "Velocity");
+    const physics = this.world.getComponent(entityId, "PhysicsBody");
+    const input = this.world.getComponent(entityId, "Input");
+    const characterState = this.world.getComponent(entityId, "CharacterState");
 
-    if (Math.abs(diff) <= maxChange) {
-      return target;
+    // 重力
+    velocity.vy += PHYSICS.GRAVITY_Y * physics.gravityScale * dt;
+
+    // 水平移動 (如果有輸入組件)
+    if (input) {
+      let targetVx = 0;
+
+      if (input.left) {
+        targetVx = -PHYSICS.MAX_RUN_SPEED;
+        if (characterState) characterState.facing = -1;
+      } else if (input.right) {
+        targetVx = PHYSICS.MAX_RUN_SPEED;
+        if (characterState) characterState.facing = 1;
+      }
+
+      // 加速或減速到目標速度
+      const accel = targetVx === 0 ? PHYSICS.MOVE_DECEL : PHYSICS.MOVE_ACCEL;
+      const diff = targetVx - velocity.vx;
+      const change = sign(diff) * Math.min(Math.abs(diff), accel * dt);
+      velocity.vx += change;
+
+      // 跳躍
+      if (input.jump && this.world.collisionFlags?.onGround.get(entityId)) {
+        velocity.vy = PHYSICS.JUMP_VELOCITY;
+      }
     }
 
-    return current + Math.sign(diff) * maxChange;
+    // 速度限制
+    velocity.vx = clamp(velocity.vx, -physics.maxSpeedX, physics.maxSpeedX);
+    velocity.vy = clamp(velocity.vy, -physics.maxSpeedY, physics.maxSpeedY);
+
+    // 更新角色動作狀態
+    if (characterState) {
+      this.updateCharacterState(characterState, velocity, entityId);
+    }
+  }
+
+  updateCharacterState(state, velocity, entityId) {
+    const isOnGround = this.world.collisionFlags?.onGround.get(entityId);
+    const isMoving = Math.abs(velocity.vx) > 10;
+
+    if (isOnGround) {
+      state.action = isMoving ? "run" : "idle";
+    } else {
+      state.action = velocity.vy < 0 ? "jump" : "fall";
+    }
   }
 }
