@@ -1,4 +1,5 @@
 // src/systems/collision-system.js
+import { debugLog, debugAssert } from "../debug.js";
 import { aabbOverlap } from "../core/math.js";
 import { COLLISION } from "../config.js";
 
@@ -37,7 +38,37 @@ export class CollisionSystem {
     const velocity = this.world.getComponent(entity, "Velocity");
     const aabb = this.world.getComponent(entity, "AABB");
 
-    if (!transform || !velocity || !aabb) return;
+    // 詳細的組件檢查
+    if (!transform) {
+      debugLog("collision", `Entity ${entity} missing Transform component`);
+      return;
+    }
+    if (!velocity) {
+      debugLog("collision", `Entity ${entity} missing Velocity component`);
+      return;
+    }
+    if (!aabb) {
+      debugLog("collision", `Entity ${entity} missing AABB component`);
+      return;
+    }
+
+    // 驗證數值合理性
+    debugAssert(
+      Number.isFinite(transform.x),
+      `Invalid transform.x for entity ${entity}`
+    );
+    debugAssert(
+      Number.isFinite(transform.y),
+      `Invalid transform.y for entity ${entity}`
+    );
+    debugAssert(
+      Number.isFinite(velocity.vx),
+      `Invalid velocity.vx for entity ${entity}`
+    );
+    debugAssert(
+      Number.isFinite(velocity.vy),
+      `Invalid velocity.vy for entity ${entity}`
+    );
 
     // X 軸碰撞解算 (先處理水平移動)
     const nextX = transform.x + velocity.vx * dt;
