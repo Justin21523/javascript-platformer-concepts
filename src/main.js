@@ -2,14 +2,17 @@
 import { World } from "./ecs/world.js";
 import { InputSystem } from "./systems/input-system.js";
 import { PhysicsSystem } from "./systems/physics-system.js";
-import { CharacterSystem } from "./systems/character-system.js";
 import { CollisionSystem } from "./systems/collision-system.js";
 import { RenderSystem } from "./systems/render-system.js";
-import { createPlayer } from "./entities/player.js";
-import { getTimeScale, drawOverlay } from "./debug.js";
 import { TileMap } from "./world/tiles.js";
 import { COLLISION, RENDER } from "./config.js";
 import { drawDebugOverlay, drawDebugHitboxes } from "./render/overlay.js";
+import {
+  shouldPauseUpdate,
+  getScaledDeltaTime,
+  profiler,
+  debugLog,
+} from "./debug.js";
 
 // 初始化 Canvas 和 Context
 const canvas = document.getElementById("gameCanvas");
@@ -81,9 +84,13 @@ let last = performance.now();
 let acc = 0;
 
 function gameLoop(now) {
+  profiler.start("frame");
+
   const rawDt = Math.min(0.25, (now - last) / 1000);
   last = now;
-  acc += rawDt;
+  // 應用時間縮放
+  const scaledDt = getScaledDeltaTime(rawDt);
+  acc += scaledDt;
 
   // FPS 計算
   fpsTime += rawDt;
@@ -94,24 +101,43 @@ function gameLoop(now) {
     fpsTime = 0;
   }
 
-  // 固定步長更新
-  while (acc >= FIXED_DT) {
+  // 固定步長更新 (除非暫停)
+  while (acc >= FIXED_DT && !shouldPauseUpdate()) {
+    profiler.start("input");
     systems.input.update(FIXED_DT);
+    profiler.end("input");
+
+    profiler.start("physics");
     systems.physics.update(FIXED_DT);
+    profiler.end("physics");
+
+    profiler.start("collision");
     systems.collision.update(FIXED_DT);
+    profiler.end("collision");
+
     acc -= FIXED_DT;
   }
 
-  // 渲染
+  // 渲染 (即使暫停也要渲染)
+  profiler.start("render");
   systems.render.draw();
+  profiler.end("render");
 
   // Debug 覆蓋層
+  profiler.start("debug");
   drawDebugOverlay(ctx, world, currentFPS);
   drawDebugHitboxes(ctx, world, tileMap);
+  profiler.end("debug");
+
+  profiler.end("frame");
 
   requestAnimationFrame(gameLoop);
 }
 
 // 啟動遊戲
-console.log("🎮 Starting Vanilla Platformer - Stage 2: Collision System");
+debugLog("main", "Starting Vanilla Platformer - Stage 2: Collision System");
+debugLog(
+  "main",
+  "Debug keys: F1=Overlay, F2=Hitboxes, F3=SlowMo, F4=Grid, `=Pause, .=Step"
+);
 requestAnimationFrame(gameLoop);
