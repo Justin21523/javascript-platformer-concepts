@@ -1,23 +1,21 @@
 // src/ecs/components.js
 
-// Component bit masks
-export const COMPONENT_TYPES = {
-  TRANSFORM: 1 << 0,
-  VELOCITY: 1 << 1,
-  PHYSICS_BODY: 1 << 2,
-  CHARACTER_STATE: 1 << 3,
-  INPUT: 1 << 4,
-  RENDERABLE: 1 << 5,
+export const Transform = {
+  name: "Transform",
+  schema: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
 };
 
-// Component storage (sparse arrays keyed by entity ID)
-export const components = {
-  Transform: {},
-  Velocity: {},
-  PhysicsBody: {},
-  CharacterState: {},
-  Input: {},
-  Renderable: {},
+// Velocity 組件
+export const Velocity = {
+  name: "Velocity",
+  schema: {
+    vx: 0,
+    vy: 0,
+  },
 };
 
 // AABB 碰撞盒
@@ -52,6 +50,38 @@ export const PhysicsBody = {
     bounceY: 0, // 垂直彈性 (可選)
   },
 };
+// 角色狀態
+export const CharacterState = {
+  name: "CharacterState",
+  schema: {
+    action: "idle", // idle/run/jump/fall
+    facing: 1, // 1=right, -1=left
+  },
+};
+
+// 渲染組件
+export const Renderable = {
+  name: "Renderable",
+  schema: {
+    color: "#FFFFFF",
+    image: null,
+    originX: 0,
+    originY: 0,
+    layer: "mid",
+  },
+};
+
+// 輸入組件
+export const Input = {
+  name: "Input",
+  schema: {
+    left: false,
+    right: false,
+    up: false,
+    down: false,
+    jump: false,
+  },
+};
 
 // 更新 bitmask
 export const ComponentBits = {
@@ -63,6 +93,17 @@ export const ComponentBits = {
   CharacterState: 1 << 5,
   Renderable: 1 << 6,
   Input: 1 << 7,
+};
+
+export const ALL_COMPONENTS = {
+  Transform,
+  Velocity,
+  AABB,
+  PhysicsBody,
+  Collider,
+  CharacterState,
+  Renderable,
+  Input,
 };
 
 // Component factories
