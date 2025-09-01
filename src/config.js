@@ -1,4 +1,5 @@
 // src/config.js
+
 export const PHYSICS = Object.freeze({
   GRAVITY_Y: 1800, // px/s²
   MOVE_ACCEL: 1500, // px/s²
@@ -13,3 +14,11 @@ export const RENDER = Object.freeze({
   CANVAS_WIDTH: 800,
   CANVAS_HEIGHT: 600,
 });
+
+// src/config.js (添加)
+export const COLLISION = {
+  TILE_SIZE: 16,
+  MTV_CLAMP: 8, // 最大修正距離
+  EPSILON: 0.1, // 碰撞容忍誤差
+  BROADPHASE_BUFFER: 1, // Broadphase 緩衝 tiles
+};
