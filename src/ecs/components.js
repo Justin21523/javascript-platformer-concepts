@@ -20,6 +20,51 @@ export const components = {
   Renderable: {},
 };
 
+// AABB 碰撞盒
+export const AABB = {
+  name: "AABB",
+  schema: {
+    w: 16, // 寬度 (px)
+    h: 24, // 高度 (px)
+    ox: 0, // X 偏移
+    oy: 0, // Y 偏移
+  },
+};
+
+// 碰撞器屬性
+export const Collider = {
+  name: "Collider",
+  schema: {
+    solid: true, // 是否阻擋移動
+    oneWay: false, // 單向平台 (Stage 9)
+    group: "world", // 碰撞群組 (world/enemy/player)
+  },
+};
+
+// 物理體擴充
+export const PhysicsBody = {
+  name: "PhysicsBody",
+  schema: {
+    gravityScale: 1.0, // 重力縮放
+    frictionX: 0.8, // 水平摩擦
+    maxSpeedX: 300, // 最大水平速度
+    maxSpeedY: 800, // 最大垂直速度 (終端速度)
+    bounceY: 0, // 垂直彈性 (可選)
+  },
+};
+
+// 更新 bitmask
+export const ComponentBits = {
+  Transform: 1 << 0,
+  Velocity: 1 << 1,
+  AABB: 1 << 2,
+  PhysicsBody: 1 << 3,
+  Collider: 1 << 4,
+  CharacterState: 1 << 5,
+  Renderable: 1 << 6,
+  Input: 1 << 7,
+};
+
 // Component factories
 export function createTransform(x = 0, y = 0, z = 0) {
   return { x, y, z };
