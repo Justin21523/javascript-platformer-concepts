@@ -1,5 +1,5 @@
 // src/systems/render-system.js
-import { COMPONENT_TYPES, components } from "../ecs/components.js";
+import { ComponentBits, components } from "../ecs/components.js";
 import { RENDER } from "../config.js";
 
 export class RenderSystem {
