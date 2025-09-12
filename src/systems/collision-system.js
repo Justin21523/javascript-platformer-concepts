@@ -7,16 +7,19 @@ export class CollisionSystem {
   constructor(world, tileMap) {
     this.world = world;
     this.tileMap = tileMap;
-    // 碰撞旗標儲存
+    // Collision flag storage
     this.flags = {
       onGround: new Map(),
       hitWall: new Map(),
       hitCeil: new Map(),
     };
+
+    // Expose flags to world for other systems
+    world.collisionFlags = this.flags;
   }
 
   update(dt) {
-    // 清除上一幀旗標
+    // Clear previous frame flags
     this.flags.onGround.clear();
     this.flags.hitWall.clear();
     this.flags.hitCeil.clear();
@@ -38,7 +41,7 @@ export class CollisionSystem {
     const velocity = this.world.getComponent(entity, "Velocity");
     const aabb = this.world.getComponent(entity, "AABB");
 
-    // 詳細的組件檢查
+    // Detailed component checks
     if (!transform) {
       debugLog("collision", `Entity ${entity} missing Transform component`);
       return;
@@ -52,7 +55,7 @@ export class CollisionSystem {
       return;
     }
 
-    // 驗證數值合理性
+    // Validate numerical sanity
     debugAssert(
       Number.isFinite(transform.x),
       `Invalid transform.x for entity ${entity}`
@@ -70,30 +73,30 @@ export class CollisionSystem {
       `Invalid velocity.vy for entity ${entity}`
     );
 
-    // X 軸碰撞解算 (先處理水平移動)
+    // X-axis collision resolution (handle horizontal movement first)
     const nextX = transform.x + velocity.vx * dt;
     if (this.checkXCollision(entity, nextX, transform.y, aabb)) {
       this.flags.hitWall.set(entity, true);
-      velocity.vx = 0; // 停止水平速度
+      velocity.vx = 0; // stop horizontal velocity
     } else {
       transform.x = nextX;
     }
 
-    // Y 軸碰撞解算 (再處理垂直移動)
+    // Y-axis collision resolution (then handle vertical movement)
     const nextY = transform.y + velocity.vy * dt;
     if (this.checkYCollision(entity, transform.x, nextY, aabb)) {
-      // 判斷碰撞方向
+      // Determine collision direction
       if (velocity.vy > 0) {
-        // 向下碰撞 = 落地
+        // Downward collision = landing
         this.flags.onGround.set(entity, true);
       } else {
-        // 向上碰撞 = 撞天花板
+        // Upward collision = hit ceiling
         this.flags.hitCeil.set(entity, true);
       }
-      velocity.vy = 0; // 停止垂直速度
+      velocity.vy = 0; // stop vertical velocity
     } else {
       transform.y = nextY;
-      // 沒有 Y 軸碰撞表示不在地面
+      // No Y-axis collision means not on ground
       this.flags.onGround.set(entity, false);
     }
   }
@@ -119,16 +122,16 @@ export class CollisionSystem {
           tile.h
         )
       ) {
-        // 計算最小平移向量 (MTV) 進行位置修正
+        // Calculate minimum translation vector (MTV) for position correction
         const transform = this.world.getComponent(entity, "Transform");
         const entityCenterX = x + aabb.ox + aabb.w / 2;
         const tileCenterX = tile.x + tile.w / 2;
 
         if (entityCenterX < tileCenterX) {
-          // 撞到右牆，推回左邊
+          // Hit right wall, push back left
           transform.x = tile.x - aabb.w - aabb.ox - COLLISION.EPSILON;
         } else {
-          // 撞到左牆，推回右邊
+          // Hit left wall, push back right
           transform.x = tile.x + tile.w - aabb.ox + COLLISION.EPSILON;
         }
 
@@ -159,17 +162,16 @@ export class CollisionSystem {
           tile.h
         )
       ) {
-        // 計算 MTV 進行位置修正
+        // Calculate MTV for position correction
         const transform = this.world.getComponent(entity, "Transform");
-        const velocity = this.world.getComponent(entity, "Velocity"); // 在這裡獲取 velocity
         const entityCenterY = y + aabb.oy + aabb.h / 2;
         const tileCenterY = tile.y + tile.h / 2;
 
         if (entityCenterY < tileCenterY) {
-          // 撞到地面，推到上方
+          // Hit ground, push to top
           transform.y = tile.y - aabb.h - aabb.oy - COLLISION.EPSILON;
         } else {
-          // 撞到天花板，推到下方
+          // Hit ceiling, push to bottom
           transform.y = tile.y + tile.h - aabb.oy + COLLISION.EPSILON;
         }
 
@@ -179,7 +181,7 @@ export class CollisionSystem {
     return false;
   }
 
-  // 旗標查詢 API
+  // Flag query API
   isOnGround(entity) {
     return this.flags.onGround.get(entity) || false;
   }
