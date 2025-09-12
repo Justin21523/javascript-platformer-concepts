@@ -18,7 +18,17 @@ export function drawDebugOverlay(ctx, world, fps = 60) {
     `Paused: ${debug.paused ? "YES" : "NO"}`,
   ];
 
-  // 效能統計
+  // Camera information
+  if (cameraSystem) {
+    const camera = cameraSystem.getCamera();
+    lines.push("--- Camera ---");
+    lines.push(`Cam: (${Math.round(camera.x)}, ${Math.round(camera.y)})`);
+    lines.push(
+      `Target: (${Math.round(camera.targetX)}, ${Math.round(camera.targetY)})`
+    );
+  }
+
+  // Performance statistics
   const profilerResults = profiler.getAllResults();
   if (Object.keys(profilerResults).length > 0) {
     lines.push("--- Profiler (ms) ---");
@@ -27,7 +37,7 @@ export function drawDebugOverlay(ctx, world, fps = 60) {
     }
   }
 
-  // 添加玩家狀態
+  // Add player state
   if (world.player && world.collisionFlags) {
     const transform = world.getComponent(world.player, "Transform");
     const velocity = world.getComponent(world.player, "Velocity");
@@ -48,13 +58,13 @@ export function drawDebugOverlay(ctx, world, fps = 60) {
 
   let y = 16;
   for (const line of lines) {
-    // 描邊效果提高可讀性
+    // Add outline effect for better readability
     ctx.strokeText(line, 10, y);
     ctx.fillText(line, 10, y);
     y += 16;
   }
 
-  // 顯示熱鍵提示
+  // Show hotkey hints
   ctx.font = "10px monospace";
   ctx.fillStyle = "#888888";
   const helpText = "F1=Overlay F2=Hitbox F3=SlowMo F4=Grid `=Pause .=Step";
@@ -69,7 +79,10 @@ export function drawDebugHitboxes(ctx, world, tileMap) {
 
   ctx.save();
 
-  // 繪製實體 hitboxes (青色框)
+  // Get camera offset
+  const camera = cameraSystem ? cameraSystem.getCamera() : { x: 0, y: 0 };
+
+  // Draw entity hitboxes (cyan frames)
   ctx.strokeStyle = "rgba(0, 255, 255, 0.8)";
   ctx.lineWidth = 1;
 
@@ -79,36 +92,65 @@ export function drawDebugHitboxes(ctx, world, tileMap) {
     const aabb = world.getComponent(entity, "AABB");
 
     if (transform && aabb) {
-      ctx.strokeRect(
-        transform.x + aabb.ox,
-        transform.y + aabb.oy,
-        aabb.w,
-        aabb.h
-      );
+      // Apply camera offset to hitbox position
+      const screenX = transform.x + aabb.ox - camera.x;
+      const screenY = transform.y + aabb.oy - camera.y;
+
+      ctx.strokeRect(screenX, screenY, aabb.w, aabb.h);
     }
   }
 
-  // 繪製 tile grid (如果啟用)
+  // Draw tile grid (if enabled)
   if (debug.showTileGrid) {
     ctx.strokeStyle = "rgba(255, 255, 0, 0.3)";
     ctx.lineWidth = 0.5;
 
-    // 垂直線
-    for (let x = 0; x <= tileMap.width; x++) {
+    // Calculate visible tile range
+    const startX = Math.max(0, Math.floor(camera.x / tileMap.tileSize));
+    const endX = Math.min(
+      tileMap.width,
+      Math.ceil((camera.x + ctx.canvas.width) / tileMap.tileSize)
+    );
+
+    const startY = Math.max(0, Math.floor(camera.y / tileMap.tileSize));
+    const endY = Math.min(
+      tileMap.height,
+      Math.ceil((camera.y + ctx.canvas.height) / tileMap.tileSize)
+    );
+
+    // Vertical lines
+    for (let x = startX; x <= endX; x++) {
+      const screenX = x * tileMap.tileSize - camera.x;
       ctx.beginPath();
-      ctx.moveTo(x * tileMap.tileSize, 0);
-      ctx.lineTo(x * tileMap.tileSize, tileMap.height * tileMap.tileSize);
+      ctx.moveTo(screenX, 0);
+      ctx.lineTo(screenX, ctx.canvas.height);
       ctx.stroke();
     }
 
-    // 水平線
-    for (let y = 0; y <= tileMap.height; y++) {
+    // Horizontal lines
+    for (let y = startY; y <= endY; y++) {
+      const screenY = y * tileMap.tileSize - camera.y;
       ctx.beginPath();
-      ctx.moveTo(0, y * tileMap.tileSize);
-      ctx.lineTo(tileMap.width * tileMap.tileSize, y * tileMap.tileSize);
+      ctx.moveTo(0, screenY);
+      ctx.lineTo(ctx.canvas.width, screenY);
       ctx.stroke();
     }
   }
 
+  // Draw camera dead zone (if camera exists)
+  if (cameraSystem && world.player) {
+    const follow = world.getComponent(world.player, "CameraFollow");
+    if (follow) {
+      ctx.strokeStyle = "rgba(255, 0, 255, 0.5)";
+      ctx.lineWidth = 2;
+
+      const centerX = ctx.canvas.width / 2;
+      const centerY = ctx.canvas.height / 2;
+      const deadZoneX = centerX - follow.deadZoneX / 2;
+      const deadZoneY = centerY - follow.deadZoneY / 2;
+
+      ctx.strokeRect(deadZoneX, deadZoneY, follow.deadZoneX, follow.deadZoneY);
+    }
+  }
   ctx.restore();
 }
