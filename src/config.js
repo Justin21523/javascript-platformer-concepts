@@ -5,8 +5,8 @@ export const PHYSICS = Object.freeze({
   MOVE_ACCEL: 1500, // px/s²
   MOVE_DECEL: 2000, // px/s²
   MAX_RUN_SPEED: 180, // px/s
-  JUMP_VELOCITY: -520, // px/s (負數 = 向上)
-  FRICTION_X: 0.85, // 地面摩擦
+  JUMP_VELOCITY: -520, // px/s (negative = upward)
+  FRICTION_X: 0.85, // ground friction
   COYOTE_TIME: 0.08,
   JUMP_BUFFER: 0.08,
 });
@@ -19,10 +19,17 @@ export const RENDER = Object.freeze({
   PLAYER_COLOR: "#FFFFFF",
 });
 
-// src/config.js (添加)
 export const COLLISION = {
   TILE_SIZE: 16,
-  MTV_CLAMP: 8, // 最大修正距離
-  EPSILON: 0.1, // 碰撞容忍誤差
-  BROADPHASE_BUFFER: 1, // Broadphase 緩衝 tiles
+  MTV_CLAMP: 8, // maximum correction distance
+  EPSILON: 0.1, // collision tolerance error
+  BROADPHASE_BUFFER: 1, // broadphase buffer tiles
 };
+
+// NEW: Camera configuration
+export const CAMERA = Object.freeze({
+  DEAD_ZONE_X: 100, // horizontal dead zone
+  DEAD_ZONE_Y: 80, // vertical dead zone
+  SMOOTHING: 0.1, // camera smoothing (0=instant, 1=no movement)
+  CLAMP_MARGIN: 50, // margin from world edges
+});
