@@ -154,3 +154,13 @@ export function createRenderable(options = {}) {
     visible: options.visible ?? true,
   };
 }
+
+// NEW: Camera follow factory
+export function createCameraFollow(options = {}) {
+  return {
+    deadZoneX: options.deadZoneX ?? 100,
+    deadZoneY: options.deadZoneY ?? 80,
+    smoothing: options.smoothing ?? 0.1,
+    priority: options.priority ?? 1,
+  };
+}
