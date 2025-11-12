@@ -81,8 +81,14 @@ async function init() {
 
   // Create player entity (spawn on left side of map, above ground)
   // Player size matches tile size: 128x192 (keeping 16:24 aspect ratio)
+  // Map: 50x20 tiles, 128px per tile = 6400x2560px world
+  // Bottom ground is at y = 19 * 128 = 2432px
   const player = world.createEntity();
-  world.addComponent(player, "Transform", { x: 256, y: 2048, z: 0 });
+  world.addComponent(player, "Transform", {
+    x: 256,          // Spawn at tile x=2
+    y: 2200,         // Spawn above ground (ground at y=2432)
+    z: 0
+  });
   world.addComponent(player, "Velocity", { vx: 0, vy: 0 });
   world.addComponent(player, "AABB", { w: 128, h: 192, ox: 0, oy: 0 });
   world.addComponent(player, "Collider", { solid: true, group: "player" });
@@ -98,7 +104,7 @@ async function init() {
   world.addComponent(player, "CameraFollow", {
     deadZoneX: 200, // Larger dead zone for bigger player
     deadZoneY: 150,
-    smoothing: 0.1,
+    smoothing: 0.05, // Faster initial follow
     priority: 1,
   });
 

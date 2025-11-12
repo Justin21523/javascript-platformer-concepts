@@ -91,6 +91,18 @@ export const Input = {
   },
 };
 
+// NEW: Camera follow component
+export const CameraFollow = {
+  name: "CameraFollow",
+  bit: 1 << 8,
+  schema: {
+    deadZoneX: 100,
+    deadZoneY: 80,
+    smoothing: 0.1,
+    priority: 1,
+  },
+};
+
 // 組件位元遮罩對應表
 export const ComponentBits = {
   Transform: Transform.bit,
@@ -101,6 +113,7 @@ export const ComponentBits = {
   CharacterState: CharacterState.bit,
   Renderable: Renderable.bit,
   Input: Input.bit,
+  CameraFollow: CameraFollow.bit,
 };
 
 // 所有組件的統一導出 (供系統使用)
@@ -113,6 +126,7 @@ export const components = {
   CharacterState,
   Renderable,
   Input,
+  CameraFollow,
 };
 
 // 組件名稱到位元的映射

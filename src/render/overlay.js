@@ -1,7 +1,7 @@
 // src/render/overlay.js
 import { getDebugState, profiler } from "../debug.js";
 
-export function drawDebugOverlay(ctx, world, fps = 60) {
+export function drawDebugOverlay(ctx, world, fps = 60, cameraSystem = null) {
   const debug = getDebugState();
   if (!debug.showOverlay) return;
 
@@ -73,7 +73,7 @@ export function drawDebugOverlay(ctx, world, fps = 60) {
   ctx.restore();
 }
 
-export function drawDebugHitboxes(ctx, world, tileMap) {
+export function drawDebugHitboxes(ctx, world, tileMap, cameraSystem = null) {
   const debug = getDebugState();
   if (!debug.showHitbox) return;
 

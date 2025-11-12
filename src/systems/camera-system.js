@@ -18,6 +18,9 @@ export class CameraSystem {
     // World bounds for clamping
     this.worldWidth = tileMap.width * tileMap.tileSize;
     this.worldHeight = tileMap.height * tileMap.tileSize;
+
+    // Flag to force immediate snap on first update
+    this.firstUpdate = true;
   }
 
   update(dt) {
@@ -50,10 +53,17 @@ export class CameraSystem {
     // Apply dead zone logic
     this.applyDeadZone(follow, targetCenterX, targetCenterY);
 
-    // Smooth camera movement
-    const lerpFactor = 1 - Math.pow(1 - CAMERA.SMOOTHING, dt * 60);
-    this.camera.x += (this.camera.targetX - this.camera.x) * lerpFactor;
-    this.camera.y += (this.camera.targetY - this.camera.y) * lerpFactor;
+    // On first update, snap camera immediately to player position
+    if (this.firstUpdate) {
+      this.camera.x = this.camera.targetX;
+      this.camera.y = this.camera.targetY;
+      this.firstUpdate = false;
+    } else {
+      // Smooth camera movement
+      const lerpFactor = 1 - Math.pow(1 - CAMERA.SMOOTHING, dt * 60);
+      this.camera.x += (this.camera.targetX - this.camera.x) * lerpFactor;
+      this.camera.y += (this.camera.targetY - this.camera.y) * lerpFactor;
+    }
 
     // Clamp to world bounds
     this.clampToWorldBounds();
