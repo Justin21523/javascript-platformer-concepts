@@ -1,0 +1,97 @@
+{
+  "name": "Free Tileset",
+  "tileSize": 128,
+  "tileCount": 18,
+  "tiles": {
+    "1": {
+      "path": "assets/freetileset/png/Tiles/1.png",
+      "solid": true,
+      "type": "ground_top"
+    },
+    "2": {
+      "path": "assets/freetileset/png/Tiles/2.png",
+      "solid": true,
+      "type": "ground_middle"
+    },
+    "3": {
+      "path": "assets/freetileset/png/Tiles/3.png",
+      "solid": true,
+      "type": "ground_bottom"
+    },
+    "4": {
+      "path": "assets/freetileset/png/Tiles/4.png",
+      "solid": true,
+      "type": "platform_left"
+    },
+    "5": {
+      "path": "assets/freetileset/png/Tiles/5.png",
+      "solid": true,
+      "type": "platform_middle"
+    },
+    "6": {
+      "path": "assets/freetileset/png/Tiles/6.png",
+      "solid": true,
+      "type": "platform_right"
+    },
+    "7": {
+      "path": "assets/freetileset/png/Tiles/7.png",
+      "solid": true,
+      "type": "ground_fill"
+    },
+    "8": {
+      "path": "assets/freetileset/png/Tiles/8.png",
+      "solid": false,
+      "type": "decoration"
+    },
+    "9": {
+      "path": "assets/freetileset/png/Tiles/9.png",
+      "solid": false,
+      "type": "decoration"
+    },
+    "10": {
+      "path": "assets/freetileset/png/Tiles/10.png",
+      "solid": false,
+      "type": "decoration"
+    },
+    "11": {
+      "path": "assets/freetileset/png/Tiles/11.png",
+      "solid": true,
+      "type": "block_stone"
+    },
+    "12": {
+      "path": "assets/freetileset/png/Tiles/12.png",
+      "solid": true,
+      "type": "block_wood"
+    },
+    "13": {
+      "path": "assets/freetileset/png/Tiles/13.png",
+      "solid": false,
+      "type": "grass_decor"
+    },
+    "14": {
+      "path": "assets/freetileset/png/Tiles/14.png",
+      "solid": true,
+      "type": "brick"
+    },
+    "15": {
+      "path": "assets/freetileset/png/Tiles/15.png",
+      "solid": true,
+      "type": "wall_left"
+    },
+    "16": {
+      "path": "assets/freetileset/png/Tiles/16.png",
+      "solid": true,
+      "type": "wall_middle"
+    },
+    "17": {
+      "path": "assets/freetileset/png/Tiles/17.png",
+      "solid": true,
+      "type": "wall_right"
+    },
+    "18": {
+      "path": "assets/freetileset/png/Tiles/18.png",
+      "solid": false,
+      "type": "cloud_platform"
+    }
+  }
+}

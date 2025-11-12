@@ -38,10 +38,11 @@ export class CameraSystem {
 
     const transform = this.world.getComponent(primaryTarget, "Transform");
     const follow = this.world.getComponent(primaryTarget, "CameraFollow");
+    const aabb = this.world.getComponent(primaryTarget, "AABB");
 
     // Calculate target position (center entity on screen)
-    const targetCenterX = transform.x + 8; // assuming 16px wide entity
-    const targetCenterY = transform.y + 12; // assuming 24px tall entity
+    const targetCenterX = transform.x + (aabb ? aabb.w / 2 : 64);
+    const targetCenterY = transform.y + (aabb ? aabb.h / 2 : 96);
 
     this.camera.targetX = targetCenterX - RENDER.CANVAS_WIDTH / 2;
     this.camera.targetY = targetCenterY - RENDER.CANVAS_HEIGHT / 2;

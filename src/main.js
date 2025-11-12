@@ -5,7 +5,8 @@ import { PhysicsSystem } from "./systems/physics-system.js";
 import { CollisionSystem } from "./systems/collision-system.js";
 import { CameraSystem } from "./systems/camera-system.js";
 import { RenderSystem } from "./systems/render-system.js";
-import { TileMap } from "./world/tiles.js";
+import { ParallaxBackgroundSystem } from "./systems/parallax-background-system.js";
+import { TilemapLoader } from "./loaders/tilemap-loader.js";
 import { COLLISION, RENDER } from "./config.js";
 import { drawDebugOverlay, drawDebugHitboxes } from "./render/overlay.js";
 import {
@@ -26,67 +27,89 @@ canvas.height = RENDER.CANVAS_HEIGHT;
 // Disable image smoothing (pixel art style)
 ctx.imageSmoothingEnabled = false;
 
-// Create ECS World
-const world = new World();
+// Global variables (will be initialized in async init function)
+let world;
+let tileMap;
+let systems;
 
-// Create larger test world (3x wider for camera testing)
-const tileMap = new TileMap(150, 16, COLLISION.TILE_SIZE); // 150x16 instead of 50x16
+/**
+ * Asynchronous initialization - Load assets before starting game
+ */
+async function init() {
+  debugLog("main", "Loading assets...");
 
-// Add ground platforms (y=12-15, x=0-149)
-for (let y = 12; y < 16; y++) {
-  for (let x = 0; x < 50; x++) {
-    tileMap.setSolid(x, y, true);
-  }
+  // Create tilemap loader and load tileset + map
+  const tilemapLoader = new TilemapLoader();
+  await tilemapLoader.loadTileset("assets/tileset.json");
+  tileMap = await tilemapLoader.loadMap("assets/levels/platformer-level1.json");
+
+  debugLog("main", `Map loaded: ${tileMap.width}x${tileMap.height} tiles`);
+
+  // Create ECS World
+  world = new World();
+
+  // Initialize systems
+  systems = {
+    input: new InputSystem(),
+    physics: new PhysicsSystem(world),
+    collision: new CollisionSystem(world, tileMap),
+    camera: new CameraSystem(world, tileMap),
+    parallax: new ParallaxBackgroundSystem(ctx, null), // Camera will be set after creation
+    render: new RenderSystem(ctx, tileMap),
+  };
+
+  // Set system world references
+  systems.input.setWorld(world);
+  systems.render.setWorld(world);
+  systems.render.setCameraSystem(systems.camera);
+
+  // Configure parallax background layers (from far to near)
+  // Layer 1: Farthest (slowest parallax, 20% horizontal, 10% vertical)
+  systems.parallax.addLayer("assets/background/layer-1.png", 0.2, 0.1, 0, true);
+  // Layer 2: Far (30% horizontal, 20% vertical)
+  systems.parallax.addLayer("assets/background/layer-2.png", 0.3, 0.2, 0, true);
+  // Layer 3: Middle (50% horizontal, 40% vertical)
+  systems.parallax.addLayer("assets/background/layer-3.png", 0.5, 0.4, 0, true);
+  // Layer 4: Near (70% horizontal, 60% vertical)
+  systems.parallax.addLayer("assets/background/layer-4.png", 0.7, 0.6, 0, true);
+
+  // Load parallax images
+  await systems.parallax.loadImages();
+
+  // Set camera reference for parallax system
+  systems.parallax.cameraSystem = systems.camera;
+
+  // Create player entity (spawn on left side of map, above ground)
+  // Player size matches tile size: 128x192 (keeping 16:24 aspect ratio)
+  const player = world.createEntity();
+  world.addComponent(player, "Transform", { x: 256, y: 2048, z: 0 });
+  world.addComponent(player, "Velocity", { vx: 0, vy: 0 });
+  world.addComponent(player, "AABB", { w: 128, h: 192, ox: 0, oy: 0 });
+  world.addComponent(player, "Collider", { solid: true, group: "player" });
+  world.addComponent(player, "PhysicsBody", {
+    gravityScale: 1,
+    frictionX: 0.8,
+    maxSpeedX: 400, // Increased for larger player
+    maxSpeedY: 1200, // Increased terminal velocity
+  });
+  world.addComponent(player, "CharacterState", { action: "idle", facing: 1 });
+  world.addComponent(player, "Renderable", { color: RENDER.PLAYER_COLOR });
+  world.addComponent(player, "Input", {});
+  world.addComponent(player, "CameraFollow", {
+    deadZoneX: 200, // Larger dead zone for bigger player
+    deadZoneY: 150,
+    smoothing: 0.1,
+    priority: 1,
+  });
+
+  // Store player ID for other systems
+  world.player = player;
+
+  debugLog("main", "Initialization complete! Starting game loop...");
+
+  // Start game loop
+  requestAnimationFrame(gameLoop);
 }
-
-// Add various platforms across the wide world
-for (let x = 10; x < 15; x++) tileMap.setSolid(x, 10, true); // small platform
-for (let x = 20; x < 30; x++) tileMap.setSolid(x, 8, true); // medium platform
-for (let x = 40; x < 50; x++) tileMap.setSolid(x, 6, true); // high platform
-for (let x = 60; x < 70; x++) tileMap.setSolid(x, 9, true); // another platform
-for (let x = 80; x < 90; x++) tileMap.setSolid(x, 7, true); // scattered platforms
-for (let x = 110; x < 125; x++) tileMap.setSolid(x, 5, true); // far platform
-for (let x = 130; x < 140; x++) tileMap.setSolid(x, 8, true); // end area platform
-
-// Initialize systems
-const systems = {
-  input: new InputSystem(),
-  physics: new PhysicsSystem(world),
-  collision: new CollisionSystem(world, tileMap),
-  camera: new CameraSystem(world, tileMap), // NEW
-  render: new RenderSystem(ctx, tileMap),
-};
-
-// Set system world references
-systems.input.setWorld(world);
-systems.render.setWorld(world);
-systems.render.setCameraSystem(systems.camera); // NEW
-
-// Create player entity
-const player = world.createEntity();
-world.addComponent(player, "Transform", { x: 100, y: 50, z: 0 });
-world.addComponent(player, "Velocity", { vx: 0, vy: 0 });
-world.addComponent(player, "AABB", { w: 16, h: 24, ox: 0, oy: 0 });
-world.addComponent(player, "Collider", { solid: true, group: "player" });
-world.addComponent(player, "PhysicsBody", {
-  gravityScale: 1,
-  frictionX: 0.8,
-  maxSpeedX: 180,
-  maxSpeedY: 800,
-});
-world.addComponent(player, "CharacterState", { action: "idle", facing: 1 });
-world.addComponent(player, "Renderable", { color: RENDER.PLAYER_COLOR });
-world.addComponent(player, "Input", {});
-world.addComponent(player, "CameraFollow", {
-  // NEW: Make camera follow player
-  deadZoneX: 100,
-  deadZoneY: 80,
-  smoothing: 0.1,
-  priority: 1,
-});
-
-// Store player ID for other systems
-world.player = player;
 
 // FPS calculation
 let frameCount = 0;
@@ -140,6 +163,13 @@ function gameLoop(now) {
 
   // Rendering (even when paused)
   profiler.start("render");
+
+  // Draw parallax background first (bottom layer)
+  profiler.start("parallax");
+  systems.parallax.draw();
+  profiler.end("parallax");
+
+  // Draw main game content
   systems.render.draw();
   profiler.end("render");
 
@@ -154,11 +184,19 @@ function gameLoop(now) {
   requestAnimationFrame(gameLoop);
 }
 
-// Start game
-debugLog("main", "Starting Vanilla Platformer - Stage 3: Camera System");
+// Start game initialization
+debugLog("main", "Starting Vanilla Platformer - Module 5: Tilemap Loader");
 debugLog(
   "main",
   "Debug keys: F1=Overlay, F2=Hitboxes, F3=SlowMo, F4=Grid, `=Pause, .=Step"
 );
-debugLog("main", "World size: 150x16 tiles = 2400x256 pixels");
-requestAnimationFrame(gameLoop);
+
+// Initialize and start (async)
+init().catch((error) => {
+  console.error("Failed to initialize game:", error);
+  document.body.innerHTML += `<div style="color: red; padding: 20px;">
+    <h2>Failed to load game</h2>
+    <p>${error.message}</p>
+    <p>Make sure you're running this via HTTP server (not file://)</p>
+  </div>`;
+});

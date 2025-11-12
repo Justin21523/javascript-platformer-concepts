@@ -6,9 +6,36 @@ export class TileMap {
     this.width = width;
     this.height = height;
     this.tileSize = tileSize;
+
+    // Legacy collision grid (for backwards compatibility)
     this.solids = Array.from({ length: height }, () =>
       Array(width).fill(false)
     );
+
+    // Legacy single-layer tiles (for backwards compatibility)
+    this.tiles = Array.from({ length: height }, () => Array(width).fill(0));
+
+    // NEW: Multi-layer tile storage
+    this.layers = {
+      background: {
+        tiles: Array.from({ length: height }, () => Array(width).fill(0)),
+        name: "Background",
+        visible: true,
+      },
+      middleground: {
+        tiles: Array.from({ length: height }, () => Array(width).fill(0)),
+        name: "Middleground",
+        visible: true,
+      },
+      foreground: {
+        tiles: Array.from({ length: height }, () => Array(width).fill(0)),
+        name: "Foreground",
+        visible: true,
+      },
+    };
+
+    // Reference to tileset for rendering
+    this.tileset = null;
   }
 
   // 設定 tile 為實體

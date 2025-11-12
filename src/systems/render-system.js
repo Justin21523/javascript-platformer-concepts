@@ -1,6 +1,7 @@
 // src/systems/render-system.js
 import { ComponentBits, components } from "../ecs/components.js";
 import { RENDER } from "../config.js";
+import { assetLoader } from "../core/asset-loader.js";
 
 export class RenderSystem {
   constructor(ctx, tileMap) {
@@ -44,7 +45,6 @@ export class RenderSystem {
 
   drawTiles(camera) {
     const { ctx, tileMap } = this;
-    ctx.fillStyle = RENDER.TILE_COLOR;
 
     // NEW: Calculate visible tile range for performance (only draw what's visible)
     const startX = Math.max(0, Math.floor(camera.x / tileMap.tileSize));
@@ -59,18 +59,37 @@ export class RenderSystem {
       Math.ceil((camera.y + RENDER.CANVAS_HEIGHT) / tileMap.tileSize)
     );
 
-    // UPDATED: Only draw visible tiles instead of all tiles
+    // Check if we have tileset and tile data for image rendering
+    const hasImages = tileMap.tileset && tileMap.tiles;
+
+    // UPDATED: Draw visible tiles (images if available, otherwise colored rectangles)
     for (let y = startY; y < endY; y++) {
       for (let x = startX; x < endX; x++) {
-        if (tileMap.isSolid(x, y)) {
-          const worldX = x * tileMap.tileSize;
-          const worldY = y * tileMap.tileSize;
+        const worldX = x * tileMap.tileSize;
+        const worldY = y * tileMap.tileSize;
 
-          // NEW: Apply camera offset
-          const screenX = worldX - camera.x;
-          const screenY = worldY - camera.y;
+        // NEW: Apply camera offset
+        const screenX = worldX - camera.x;
+        const screenY = worldY - camera.y;
 
-          ctx.fillRect(screenX, screenY, tileMap.tileSize, tileMap.tileSize);
+        if (hasImages) {
+          // NEW: Render image tiles
+          const tileGID = tileMap.tiles[y][x];
+          if (tileGID > 0) {
+            const tileInfo = tileMap.tileset.tiles[String(tileGID)];
+            if (tileInfo) {
+              const img = assetLoader.getImage(tileInfo.path);
+              if (img) {
+                ctx.drawImage(img, screenX, screenY, tileMap.tileSize, tileMap.tileSize);
+              }
+            }
+          }
+        } else {
+          // Fallback: Render colored rectangles for solid tiles
+          if (tileMap.isSolid(x, y)) {
+            ctx.fillStyle = RENDER.TILE_COLOR;
+            ctx.fillRect(screenX, screenY, tileMap.tileSize, tileMap.tileSize);
+          }
         }
       }
     }
