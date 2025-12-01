@@ -38,6 +38,7 @@ export function snapshot() {
     partyWallpaper: keys.has("KeyV"), // hold V to切換派對桌布
     partyClone: keys.has("KeyC"), // C 生成派對分身
     partyExit: keys.has("KeyN"), // N 離開慶祝、進入下一關
+    voidMode: keys.has("KeyX"), // 按住 X 進入無敵桌布模式
   };
 }
 

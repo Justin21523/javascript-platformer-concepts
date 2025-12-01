@@ -164,6 +164,11 @@ export class RenderSystem {
 
     if (!transform || !renderable) return;
 
+    if (this.world.voidMode?.active) {
+      // 只渲染玩家與標記 renderDuringVoid 的特效
+      if (entity !== this.world.player && !renderable.renderDuringVoid) return;
+    }
+
     // Check IFrame visibility (for flash effect)
     const iframe = this.world.getComponent(entity, "IFrame");
     if (iframe && iframe.active && !iframe.visible) {

@@ -22,13 +22,14 @@ import { WaveSystem } from "./systems/wave-system.js";
 import { HyperdriveSystem } from "./systems/hyperdrive-system.js";
 import { GoalSystem } from "./systems/goal-system.js";
 import { CelebrationSystem } from "./systems/celebration-system.js";
+import { VoidModeSystem } from "./systems/void-mode-system.js";
 import { ShieldSystem } from "./systems/shield-system.js";
 import { TilemapLoader } from "./loaders/tilemap-loader.js";
 import { ActorLoader } from "./loaders/actor-loader.js";
 import { InfiniteWorld } from "./world/infinite-world.js";
 import { LevelManager } from "./world/level-manager.js";
 import { ProceduralLevelGenerator } from "./world/procedural-level-generator.js";
-import { COLLISION, RENDER } from "./config.js";
+import { COLLISION, RENDER, VOID_MODE } from "./config.js";
 import { drawDebugOverlay, drawDebugHitboxes, drawVelocityVectors, drawAbilityHud } from "./render/overlay.js";
 import { DebugConsole } from "./debug-console.js";
 import { DebugPanel } from "./debug-panel.js";
@@ -115,6 +116,7 @@ async function init() {
 
   // Store infiniteWorld reference in world for debugging
   world.infiniteWorld = infiniteWorld;
+  world.voidMode = { active: false };
 
   // Initialize systems (use infiniteWorld instead of tileMap)
   systems = {
@@ -135,6 +137,7 @@ async function init() {
     waves: new WaveSystem(world),
     celebration: null,
     goal: null,
+    voidMode: null,
     shield: new ShieldSystem(world),
     spawn: null, // will init after world ready
     camera: new CameraSystem(world, infiniteWorld.groundMap),
@@ -150,6 +153,7 @@ async function init() {
   systems.hyperdrive = new HyperdriveSystem(world, systems.collision);
   systems.celebration = new CelebrationSystem(world, levelManager, systems.parallax);
   systems.goal = new GoalSystem(world, levelManager, systems.celebration);
+  systems.voidMode = new VoidModeSystem(world, systems.damage);
   systems.spawn = new SpawnSystem(world, infiniteWorld, {
     interval: 0.5,
     spawnRadius: 900,
@@ -444,6 +448,12 @@ function gameLoop(now) {
     systems.collision.update(FIXED_DT);
     profiler.end("collision");
 
+    profiler.start("voidMode");
+    systems.voidMode.update(FIXED_DT);
+    profiler.end("voidMode");
+
+    const voidActive = systems.voidMode.isActive();
+
     // Combat systems
     profiler.start("playerAttack");
     systems.playerAttack.update(FIXED_DT);
@@ -465,33 +475,39 @@ function gameLoop(now) {
     systems.celebration.update(FIXED_DT);
     profiler.end("celebration");
 
-    profiler.start("waves");
-    systems.waves.update(FIXED_DT);
-    profiler.end("waves");
+    if (!voidActive) {
+      profiler.start("waves");
+      systems.waves.update(FIXED_DT);
+      profiler.end("waves");
 
-    profiler.start("projectiles");
-    systems.projectiles.update(FIXED_DT);
-    profiler.end("projectiles");
+      profiler.start("projectiles");
+      systems.projectiles.update(FIXED_DT);
+      profiler.end("projectiles");
 
-    profiler.start("hitbox");
-    systems.hitbox.update(FIXED_DT);
-    profiler.end("hitbox");
+      profiler.start("hitbox");
+      systems.hitbox.update(FIXED_DT);
+      profiler.end("hitbox");
 
-    profiler.start("damage");
-    systems.damage.update(FIXED_DT);
-    profiler.end("damage");
+      profiler.start("damage");
+      systems.damage.update(FIXED_DT);
+      profiler.end("damage");
 
-    profiler.start("collectibles");
-    systems.collectibles.update(FIXED_DT);
-    profiler.end("collectibles");
+      profiler.start("collectibles");
+      systems.collectibles.update(FIXED_DT);
+      profiler.end("collectibles");
 
-    profiler.start("goal");
-    systems.goal.update(FIXED_DT);
-    profiler.end("goal");
+      profiler.start("goal");
+      systems.goal.update(FIXED_DT);
+      profiler.end("goal");
 
-    profiler.start("spawn");
-    systems.spawn.update(FIXED_DT);
-    profiler.end("spawn");
+      profiler.start("spawn");
+      systems.spawn.update(FIXED_DT);
+      profiler.end("spawn");
+    } else {
+      profiler.start("projectiles");
+      systems.projectiles.update(FIXED_DT);
+      profiler.end("projectiles");
+    }
 
     profiler.start("buffs");
     systems.buffs.update(FIXED_DT);
@@ -521,8 +537,15 @@ function gameLoop(now) {
   ctx.fillStyle = RENDER.BACKGROUND_COLOR;
   ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
+  const voidActiveRender = world.voidMode?.active;
   const isWallpaper = world.celebration?.active && world.celebration.wallpaperHeld;
-  if (isWallpaper) {
+  if (voidActiveRender) {
+    const grd = ctx.createLinearGradient(0, 0, ctx.canvas.width, ctx.canvas.height);
+    grd.addColorStop(0, VOID_MODE.wallpaperA || "rgba(0,15,30,0.9)");
+    grd.addColorStop(1, VOID_MODE.wallpaperB || "rgba(10,0,20,0.8)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  } else if (isWallpaper) {
     const grd = ctx.createLinearGradient(0, 0, ctx.canvas.width, ctx.canvas.height);
     grd.addColorStop(0, "rgba(40,10,60,0.9)");
     grd.addColorStop(1, "rgba(10,10,20,0.9)");
@@ -539,11 +562,15 @@ function gameLoop(now) {
   profiler.start("tiles-entities");
   const camera = systems.camera.getCamera();
 
-  // Draw background tiles (behind everything)
-  systems.render.drawTiles(camera);
+  const voidActive = world.voidMode?.active;
 
-  // Draw middleground tiles (with player)
-  systems.render.drawMiddleground(camera);
+  if (!voidActive) {
+    // Draw background tiles (behind everything)
+    systems.render.drawTiles(camera);
+
+    // Draw middleground tiles (with player)
+    systems.render.drawMiddleground(camera);
+  }
 
   // Draw entities (player layer)
   const entities = world.query(["Transform", "Renderable"]);
@@ -551,8 +578,10 @@ function gameLoop(now) {
     systems.render.drawEntity(entity, camera);
   }
 
-  // Draw foreground tiles (in front of player)
-  systems.render.drawForeground(camera);
+  if (!voidActive) {
+    // Draw foreground tiles (in front of player)
+    systems.render.drawForeground(camera);
+  }
 
   profiler.end("tiles-entities");
 

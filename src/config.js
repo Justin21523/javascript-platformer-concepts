@@ -108,3 +108,14 @@ export const CELEBRATION = Object.freeze({
   groundHeight: 14,
   groundTile: 1,
 });
+
+export const VOID_MODE = Object.freeze({
+  wallpaperA: "rgba(0,15,30,0.9)",
+  wallpaperB: "rgba(10,0,20,0.8)",
+  burstColors: [
+    "rgba(120,240,255,0.9)",
+    "rgba(255,180,120,0.9)",
+    "rgba(180,140,255,0.9)",
+    "rgba(140,255,200,0.9)",
+  ],
+});

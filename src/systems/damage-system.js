@@ -21,6 +21,7 @@ export class DamageSystem {
   }
 
   update(dt) {
+    if (this.world.voidMode?.active) return;
     // Process hit events from HitboxSystem
     const hitEvents = this.hitboxSystem.getHitEvents();
 

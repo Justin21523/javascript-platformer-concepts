@@ -205,6 +205,10 @@ export function drawAbilityHud(ctx, world) {
       ctx.fillText("壁紙 ON", hudX + hudW - 80, hudY - 4);
     }
   }
+  if (world.voidMode?.active) {
+    ctx.fillStyle = "#a0e3ff";
+    ctx.fillText("無敵桌布：X 按住 / J/L/U 放煙火", hudX, hudY + hudH + 58);
+  }
 
   // Style toast
   if (ability.styleToastTimer > 0 && ability.styleToastLabel) {

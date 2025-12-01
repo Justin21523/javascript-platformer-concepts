@@ -23,7 +23,7 @@ export class SpawnSystem {
   }
 
   update(dt) {
-    if (this.world.celebration?.active) return;
+    if (this.world.celebration?.active || this.world.voidMode?.active) return;
     if (!this.world.player) return;
     this.timer += dt;
     if (this.timer < this.interval) return;

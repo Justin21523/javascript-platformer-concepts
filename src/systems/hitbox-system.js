@@ -14,6 +14,7 @@ export class HitboxSystem {
   }
 
   update(dt) {
+    if (this.world.voidMode?.active) return;
     this.hitEvents = [];
 
     // Get all entities with active hitboxes

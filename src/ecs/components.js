@@ -76,6 +76,7 @@ export const Renderable = {
     originY: 0,
     layer: "mid",
     opacity: 1,
+    renderDuringVoid: false,
   },
 };
 
@@ -102,6 +103,7 @@ export const Input = {
     partyWallpaper: false,
     partyClone: false,
     partyExit: false,
+    voidMode: false,
   },
 };
 
@@ -569,6 +571,7 @@ export function createInput() {
     partyWallpaper: false,
     partyClone: false,
     partyExit: false,
+    voidMode: false,
   };
 }
 
@@ -580,6 +583,7 @@ export function createRenderable(options = {}) {
     layer: options.layer ?? "mid",
     visible: options.visible ?? true,
     opacity: options.opacity ?? 1,
+    renderDuringVoid: options.renderDuringVoid ?? false,
   };
 }
 

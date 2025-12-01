@@ -9,6 +9,7 @@ export class AISystem {
   }
 
   update(dt) {
+    if (this.world.voidMode?.active) return;
     const entities = this.world.query([
       "AIState",
       "Perception",
