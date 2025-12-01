@@ -10,7 +10,7 @@ import { debugLog } from "../debug.js";
 export class TilemapLoader {
   constructor() {
     this.tileset = null;
-    this.tileSize = 128; // Default, will be overridden by tileset
+    this.tileSize = 32; // Very small tiles for much larger character
   }
 
   /**
@@ -21,7 +21,7 @@ export class TilemapLoader {
   async loadTileset(tilesetPath) {
     const tilesetData = await assetLoader.loadJSON(tilesetPath);
     this.tileset = tilesetData;
-    this.tileSize = tilesetData.tileSize || 128;
+    this.tileSize = 32; // Override to 32 for much larger character
 
     // Preload all tile images
     const imagePromises = Object.values(tilesetData.tiles).map((tile) =>
@@ -98,13 +98,13 @@ export class TilemapLoader {
       );
     }
 
-    // Convert flat array to 2D grid and mark solid tiles
+    // Convert flat array to 2D grid and distribute to layers
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const index = y * width + x;
         const tileGID = data[index];
 
-        // Store tile GID for rendering (0 = empty)
+        // Store tile GID for legacy rendering (0 = empty)
         if (!tileMap.tiles) {
           tileMap.tiles = Array.from({ length: height }, () =>
             Array(width).fill(0)
@@ -112,9 +112,16 @@ export class TilemapLoader {
         }
         tileMap.tiles[y][x] = tileGID;
 
-        // Mark as solid if tile has solid property
         if (tileGID > 0 && this.tileset.tiles[String(tileGID)]) {
           const tileInfo = this.tileset.tiles[String(tileGID)];
+
+          // Distribute tile to appropriate layer
+          const layerName = tileInfo.layer || "middleground";
+          if (tileMap.layers[layerName]) {
+            tileMap.layers[layerName].tiles[y][x] = tileGID;
+          }
+
+          // Mark as solid if tile has solid property
           if (tileInfo.solid) {
             tileMap.setSolid(x, y, true);
           }
@@ -126,6 +133,28 @@ export class TilemapLoader {
       "TilemapLoader",
       `Parsed layer '${layer.name}': ${width}x${height} tiles`
     );
+
+    // DEBUG: Count tiles per layer
+    for (const [layerName, layerData] of Object.entries(tileMap.layers)) {
+      let count = 0;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          if (layerData.tiles[y][x] > 0) count++;
+        }
+      }
+      if (count > 0) {
+        debugLog("TilemapLoader", `  ${layerName}: ${count} tiles`);
+      }
+    }
+
+    // DEBUG: Count solid tiles
+    let solidCount = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (tileMap.isSolid(x, y)) solidCount++;
+      }
+    }
+    debugLog("TilemapLoader", `Solid tiles marked: ${solidCount}`);
   }
 
   /**

@@ -16,15 +16,13 @@ export class InputSystem {
 
     const inputSnapshot = snapshot();
 
-    // 找到所有具有 Input component 的實體
-    const entities = this.world.query(["Input"]);
+    // 只更新玩家輸入，避免覆蓋 AI 實體的指令
+    const playerId = this.world.player;
+    if (!playerId) return;
 
-    for (const entityId of entities) {
-      const input = this.world.getComponent(entityId, "Input");
-      if (input) {
-        // 更新輸入狀態
-        Object.assign(input, inputSnapshot);
-      }
+    const input = this.world.getComponent(playerId, "Input");
+    if (input) {
+      Object.assign(input, inputSnapshot);
     }
   }
 }

@@ -19,11 +19,23 @@ A **zero-dependency 2D platformer** built with pure JavaScript, HTML Canvas, and
 # Clone the repository
 git clone https://github.com/your-username/vanilla-platformer-js.git
 cd vanilla-platformer-js
+```
 
-# Serve locally (required for asset loading)
+### Vite Dev Server (recommended)
+```bash
+npm install
+npm run dev      # http://localhost:5173
+# Build for static hosting
+npm run build
+npm run preview  # Serve the built bundle for final check
+```
+
+### Simple static server (legacy)
+```bash
 python -m http.server 8000
 # OR
 npx http-server
+```
 
 # Open http://localhost:8000
 ```
@@ -40,6 +52,8 @@ npx http-server
 | **F4** | Toggle tile grid |
 | **`** (Backtick) | Pause/unpause |
 | **.** (Period) | Frame step (when paused) |
+| **F6** | Debug panel (toggles overlay controls) |
+| **F7** | Level menu (pick/load levels, respawn; includes procedural levels) |
 
 ## 🏗️ Architecture
 
@@ -329,4 +343,3 @@ Compatible with **Tiled Map Editor**:
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
-

@@ -25,6 +25,19 @@ export function snapshot() {
     up: keys.has("ArrowUp") || keys.has("KeyW"),
     down: keys.has("ArrowDown") || keys.has("KeyS"),
     jump: keys.has("Space"),
+    attack: keys.has("KeyJ"), // J key for quick slash
+    attackHeavy: keys.has("KeyL"), // L key for heavy strike
+    attackProjectile: keys.has("KeyU"), // U key for projectile
+    attackUp: keys.has("KeyI"), // I key for upward slash
+    attackSpin: keys.has("KeyO"), // O key for spin/aoe
+    attackWave: keys.has("KeyP"), // P key for ripple wave
+    attackStar: keys.has("KeyG"), // G key for starburst spiral
+    block: keys.has("KeyB"), // B key for shield
+    ability: keys.has("KeyK"), // K key for ability
+    hyperStyleNext: keys.has("KeyH"), // H key to cycle hyperdrive style (Halloween variants)
+    partyWallpaper: keys.has("KeyV"), // hold V to切換派對桌布
+    partyClone: keys.has("KeyC"), // C 生成派對分身
+    partyExit: keys.has("KeyN"), // N 離開慶祝、進入下一關
   };
 }
 

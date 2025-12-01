@@ -5,13 +5,52 @@ export const SHOW_HITBOX = false;
 export const SHOW_TILE_GRID = false;
 export const TIME_SCALE_DEFAULT = 1.0;
 
+// Multi-speed time scaling options
+export const TIME_SCALES = [0.1, 0.5, 1.0, 2.0];
+
+// Load saved settings from localStorage
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem("debugSettings");
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn("Failed to load debug settings:", e);
+  }
+  return null;
+}
+
+// Save settings to localStorage
+function saveSettings(state) {
+  try {
+    const toSave = {
+      showOverlay: state.showOverlay,
+      showHitbox: state.showHitbox,
+      showTileGrid: state.showTileGrid,
+      showVelocityVectors: state.showVelocityVectors,
+      timeScaleIndex: state.timeScaleIndex,
+      showPanel: state.showPanel,
+    };
+    localStorage.setItem("debugSettings", JSON.stringify(toSave));
+  } catch (e) {
+    console.warn("Failed to save debug settings:", e);
+  }
+}
+
+// Initialize with saved settings or defaults
+const savedSettings = loadSettings();
+
 // Debug 狀態變數 (模組內部狀態)
 let debugState = {
-  showOverlay: SHOW_OVERLAY,
-  showHitbox: SHOW_HITBOX,
-  showTileGrid: SHOW_TILE_GRID,
-  timeScale: TIME_SCALE_DEFAULT,
+  showOverlay: savedSettings?.showOverlay ?? SHOW_OVERLAY,
+  showHitbox: savedSettings?.showHitbox ?? SHOW_HITBOX,
+  showTileGrid: savedSettings?.showTileGrid ?? SHOW_TILE_GRID,
+  showVelocityVectors: savedSettings?.showVelocityVectors ?? false,
+  timeScaleIndex: savedSettings?.timeScaleIndex ?? 2, // Default to 1.0x (index 2)
+  timeScale: TIME_SCALES[savedSettings?.timeScaleIndex ?? 2],
   paused: false,
+  showPanel: savedSettings?.showPanel ?? false,
 };
 
 // 熱鍵映射
@@ -20,8 +59,13 @@ export const DEBUG_KEYS = {
   HITBOX: "F2",
   SLOW_MOTION: "F3",
   TILE_GRID: "F4",
+  VELOCITY_VECTORS: "F5",
+  LEVEL_MENU: "F7",
+  PANEL: "F6",
   PAUSE: "Backquote", // ` 鍵
   STEP: "Period", // . 鍵
+  SCREENSHOT: "F12",
+  CONSOLE: "F9",
 };
 
 // 初始化熱鍵監聽
@@ -30,25 +74,81 @@ function initDebugKeys() {
     // 防止按鍵重複觸發
     if (e.repeat) return;
 
+    // 攔截瀏覽器功能鍵 (保留 F5 刷新)
+    const fnKeys = new Set([
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11",
+      "F12",
+    ]);
+    if (fnKeys.has(e.code) && e.code !== "F5") {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
     switch (e.code) {
       case DEBUG_KEYS.OVERLAY:
         debugState.showOverlay = !debugState.showOverlay;
         console.log("🔧 Debug Overlay:", debugState.showOverlay);
+        saveSettings(debugState);
         break;
 
       case DEBUG_KEYS.HITBOX:
         debugState.showHitbox = !debugState.showHitbox;
         console.log("🔧 Show Hitboxes:", debugState.showHitbox);
+        saveSettings(debugState);
         break;
 
       case DEBUG_KEYS.SLOW_MOTION:
-        debugState.timeScale = debugState.timeScale === 1 ? 0.25 : 1;
-        console.log("🔧 Time Scale:", debugState.timeScale);
+        // Multi-speed time scaling with Shift+F3 (cycle up) and Ctrl+F3 (cycle down)
+        if (e.shiftKey) {
+          // Cycle to next speed
+          setTimeScaleIndex((debugState.timeScaleIndex + 1) % TIME_SCALES.length);
+        } else if (e.ctrlKey || e.metaKey) {
+          // Cycle to previous speed
+          setTimeScaleIndex((debugState.timeScaleIndex - 1 + TIME_SCALES.length) % TIME_SCALES.length);
+        } else {
+          // F3 alone toggles between current and 1.0x
+          if (debugState.timeScaleIndex === 2) {
+            // Currently at 1.0x, go to slowest
+            setTimeScaleIndex(0);
+          } else {
+            // Go back to 1.0x
+            setTimeScaleIndex(2);
+          }
+        }
         break;
 
       case DEBUG_KEYS.TILE_GRID:
         debugState.showTileGrid = !debugState.showTileGrid;
         console.log("🔧 Show Tile Grid:", debugState.showTileGrid);
+        saveSettings(debugState);
+        break;
+
+      case DEBUG_KEYS.VELOCITY_VECTORS:
+        debugState.showVelocityVectors = !debugState.showVelocityVectors;
+        console.log("🔧 Show Velocity Vectors:", debugState.showVelocityVectors);
+        saveSettings(debugState);
+        break;
+
+      case DEBUG_KEYS.LEVEL_MENU:
+        console.log("🔧 Level Menu toggle");
+        window.dispatchEvent(new CustomEvent("debug-level-menu-toggle"));
+        break;
+
+      case DEBUG_KEYS.PANEL:
+        debugState.showPanel = !debugState.showPanel;
+        console.log("🔧 Debug Panel:", debugState.showPanel);
+        window.dispatchEvent(new CustomEvent("debug-panel-toggle"));
+        saveSettings(debugState);
         break;
 
       case DEBUG_KEYS.PAUSE:
@@ -62,6 +162,20 @@ function initDebugKeys() {
           debugState.stepOnce = true;
           console.log("🔧 Step Frame");
         }
+        break;
+
+      case DEBUG_KEYS.SCREENSHOT:
+        e.preventDefault();
+        // Trigger screenshot event (handled in main.js)
+        window.dispatchEvent(new CustomEvent("debug-screenshot"));
+        console.log("📸 Screenshot captured");
+        break;
+
+      case DEBUG_KEYS.CONSOLE:
+        debugState.showConsole = !debugState.showConsole;
+        console.log("🔧 Debug Console:", debugState.showConsole);
+        // Trigger console toggle event (handled in main.js)
+        window.dispatchEvent(new CustomEvent("debug-console-toggle"));
         break;
     }
   });
@@ -79,16 +193,52 @@ export function setDebugState(key, value) {
   }
 }
 
+// Update a debug setting and persist it
+export function updateDebugSetting(key, value) {
+  if (debugState.hasOwnProperty(key)) {
+    debugState[key] = value;
+    saveSettings(debugState);
+  }
+}
+
+// Set time scale by index and persist
+export function setTimeScaleIndex(index) {
+  const clamped = Math.max(0, Math.min(TIME_SCALES.length - 1, index));
+  debugState.timeScaleIndex = clamped;
+  debugState.timeScale = TIME_SCALES[clamped];
+  console.log(`🔧 Time Scale: ${debugState.timeScale}x (${clamped + 1}/${TIME_SCALES.length})`);
+  saveSettings(debugState);
+}
+
 // 重設 debug 狀態
 export function resetDebugState() {
   debugState = {
-    showOverlay: SHOW_OVERLAY,
-    showHitbox: SHOW_HITBOX,
-    showTileGrid: SHOW_TILE_GRID,
-    timeScale: TIME_SCALE_DEFAULT,
-    paused: false,
-    stepOnce: false,
+  showOverlay: SHOW_OVERLAY,
+  showHitbox: SHOW_HITBOX,
+  showTileGrid: SHOW_TILE_GRID,
+  showVelocityVectors: false,
+  timeScaleIndex: 2,
+  timeScale: TIME_SCALE_DEFAULT,
+  paused: false,
+  stepOnce: false,
+  showConsole: false,
+  showPanel: false,
   };
+  saveSettings(debugState);
+}
+
+// Screenshot utility
+export function takeScreenshot(canvas, filename = "screenshot") {
+  try {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const link = document.createElement("a");
+    link.download = `${filename}_${timestamp}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    console.log("📸 Screenshot saved:", link.download);
+  } catch (e) {
+    console.error("Failed to take screenshot:", e);
+  }
 }
 
 // 檢查是否應該暫停更新 (供主迴圈使用)

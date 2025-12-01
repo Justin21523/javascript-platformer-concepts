@@ -1,0 +1,83 @@
+{
+  "slime": {
+    "width": 64,
+    "height": 64,
+    "frameDuration": 0.1,
+    "health": 50,
+    "damage": 10,
+    "speed": 100,
+    "team": "enemy",
+    "animations": {
+      "idle": {
+        "folder": "idle",
+        "frameCount": 10
+      },
+      "walk": {
+        "folder": "walk",
+        "frameCount": 8
+      },
+      "attack": {
+        "folder": "attack",
+        "frameCount": 6
+      },
+      "death": {
+        "folder": "death",
+        "frameCount": 10
+      }
+    }
+  },
+  "bat": {
+    "width": 48,
+    "height": 48,
+    "frameDuration": 0.08,
+    "health": 30,
+    "damage": 8,
+    "speed": 150,
+    "team": "enemy",
+    "animations": {
+      "idle": {
+        "folder": "idle",
+        "frameCount": 8
+      },
+      "fly": {
+        "folder": "fly",
+        "frameCount": 8
+      },
+      "attack": {
+        "folder": "attack",
+        "frameCount": 6
+      },
+      "death": {
+        "folder": "death",
+        "frameCount": 8
+      }
+    }
+  },
+  "skeleton": {
+    "width": 72,
+    "height": 96,
+    "frameDuration": 0.12,
+    "health": 80,
+    "damage": 15,
+    "speed": 80,
+    "team": "enemy",
+    "animations": {
+      "idle": {
+        "folder": "idle",
+        "frameCount": 10
+      },
+      "walk": {
+        "folder": "walk",
+        "frameCount": 8
+      },
+      "attack": {
+        "folder": "attack",
+        "frameCount": 8
+      },
+      "death": {
+        "folder": "death",
+        "frameCount": 12
+      }
+    }
+  }
+}

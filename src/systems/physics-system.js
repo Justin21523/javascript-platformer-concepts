@@ -22,6 +22,8 @@ export class PhysicsSystem {
     const physics = this.world.getComponent(entityId, "PhysicsBody");
     const input = this.world.getComponent(entityId, "Input");
     const characterState = this.world.getComponent(entityId, "CharacterState");
+    const buff = this.world.getComponent(entityId, "BuffState");
+    const speedMult = buff && buff.active ? buff.speedMultiplier : 1;
 
     // 重力
     velocity.vy += PHYSICS.GRAVITY_Y * physics.gravityScale * dt;
@@ -37,16 +39,20 @@ export class PhysicsSystem {
         targetVx = PHYSICS.MAX_RUN_SPEED;
         if (characterState) characterState.facing = 1;
       }
+      targetVx *= speedMult;
 
-      // 加速或減速到目標速度
+      // 檢查是否在地面上
+      const isOnGround = this.world.collisionFlags?.onGround.get(entityId);
+
+      // 空中控制：在空中時也能移動，使用相同的加速度
       const accel = targetVx === 0 ? PHYSICS.MOVE_DECEL : PHYSICS.MOVE_ACCEL;
       const diff = targetVx - velocity.vx;
       const change = sign(diff) * Math.min(Math.abs(diff), accel * dt);
       velocity.vx += change;
 
-      // 跳躍
-      if (input.jump && this.world.collisionFlags?.onGround.get(entityId)) {
-        velocity.vy = PHYSICS.JUMP_VELOCITY;
+      // 跳躍 - 移除地面檢查以啟用無限跳躍 (debug模式)
+      if (input.jump) {
+        velocity.vy = PHYSICS.JUMP_VELOCITY * speedMult;
       }
     }
 

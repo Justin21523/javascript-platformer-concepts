@@ -21,6 +21,15 @@ export class CameraSystem {
 
     // Flag to force immediate snap on first update
     this.firstUpdate = true;
+
+    this.shake = { time: 0, duration: 0, strength: 0 };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("camera-shake", (e) => {
+        const detail = e.detail || {};
+        this.triggerShake(detail.strength ?? 8, detail.duration ?? 0.25);
+      });
+    }
   }
 
   update(dt) {
@@ -65,8 +74,26 @@ export class CameraSystem {
       this.camera.y += (this.camera.targetY - this.camera.y) * lerpFactor;
     }
 
-    // Clamp to world bounds
-    this.clampToWorldBounds();
+    // Camera shake (adds a small random offset)
+    if (this.shake.time > 0) {
+      this.shake.time -= dt;
+      const t = Math.max(0, this.shake.time / (this.shake.duration || 0.0001));
+      const falloff = t * t; // quadratic decay
+      const sx = (Math.random() * 2 - 1) * this.shake.strength * falloff;
+      const sy = (Math.random() * 2 - 1) * this.shake.strength * falloff;
+      this.camera.x += sx;
+      this.camera.y += sy;
+    }
+
+    // Clamp camera Y to prevent showing below ground layer
+    // Ground layer bottom should align with canvas bottom
+    const maxY = this.worldHeight - RENDER.CANVAS_HEIGHT;
+
+    // Clamp both target and actual camera position
+    this.camera.targetY = Math.min(this.camera.targetY, maxY);
+    this.camera.y = Math.min(this.camera.y, maxY);
+
+    // Allow infinite horizontal movement (no X clamping)
 
     // Round to integer pixels (prevent tearing)
     this.camera.x = Math.round(this.camera.x);
@@ -146,5 +173,19 @@ export class CameraSystem {
       worldY + height >= this.camera.y - margin &&
       worldY <= this.camera.y + RENDER.CANVAS_HEIGHT + margin
     );
+  }
+
+  // Update map reference when switching levels
+  setTileMap(tileMap) {
+    this.tileMap = tileMap;
+    this.worldWidth = tileMap.width * tileMap.tileSize;
+    this.worldHeight = tileMap.height * tileMap.tileSize;
+    this.firstUpdate = true;
+  }
+
+  triggerShake(strength = 8, duration = 0.25) {
+    this.shake.strength = strength;
+    this.shake.duration = duration;
+    this.shake.time = duration;
   }
 }
