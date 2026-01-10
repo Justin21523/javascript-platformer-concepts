@@ -1,0 +1,116 @@
+{
+  "name": "Free Tileset",
+  "tileSize": 128,
+  "tileCount": 18,
+  "tiles": {
+    "1": {
+      "path": "assets/freetileset/png/Tiles/1.png",
+      "solid": true,
+      "type": "ground_top",
+      "layer": "middleground"
+    },
+    "2": {
+      "path": "assets/freetileset/png/Tiles/2.png",
+      "solid": true,
+      "type": "ground_middle",
+      "layer": "middleground"
+    },
+    "3": {
+      "path": "assets/freetileset/png/Tiles/3.png",
+      "solid": true,
+      "type": "ground_bottom",
+      "layer": "middleground"
+    },
+    "4": {
+      "path": "assets/freetileset/png/Tiles/4.png",
+      "solid": true,
+      "type": "platform_left",
+      "layer": "middleground"
+    },
+    "5": {
+      "path": "assets/freetileset/png/Tiles/5.png",
+      "solid": true,
+      "type": "platform_middle",
+      "layer": "middleground"
+    },
+    "6": {
+      "path": "assets/freetileset/png/Tiles/6.png",
+      "solid": true,
+      "type": "platform_right",
+      "layer": "middleground"
+    },
+    "7": {
+      "path": "assets/freetileset/png/Tiles/7.png",
+      "solid": true,
+      "type": "ground_fill",
+      "layer": "middleground"
+    },
+    "8": {
+      "path": "assets/freetileset/png/Tiles/8.png",
+      "solid": false,
+      "type": "decoration",
+      "layer": "background"
+    },
+    "9": {
+      "path": "assets/freetileset/png/Tiles/9.png",
+      "solid": false,
+      "type": "decoration",
+      "layer": "background"
+    },
+    "10": {
+      "path": "assets/freetileset/png/Tiles/10.png",
+      "solid": false,
+      "type": "decoration",
+      "layer": "foreground"
+    },
+    "11": {
+      "path": "assets/freetileset/png/Tiles/11.png",
+      "solid": true,
+      "type": "block_stone",
+      "layer": "middleground"
+    },
+    "12": {
+      "path": "assets/freetileset/png/Tiles/12.png",
+      "solid": true,
+      "type": "block_wood",
+      "layer": "middleground"
+    },
+    "13": {
+      "path": "assets/freetileset/png/Tiles/13.png",
+      "solid": false,
+      "type": "grass_decor",
+      "layer": "foreground"
+    },
+    "14": {
+      "path": "assets/freetileset/png/Tiles/14.png",
+      "solid": true,
+      "type": "brick",
+      "layer": "middleground"
+    },
+    "15": {
+      "path": "assets/freetileset/png/Tiles/15.png",
+      "solid": true,
+      "type": "wall_left",
+      "layer": "middleground"
+    },
+    "16": {
+      "path": "assets/freetileset/png/Tiles/16.png",
+      "solid": true,
+      "type": "wall_middle",
+      "layer": "middleground"
+    },
+    "17": {
+      "path": "assets/freetileset/png/Tiles/17.png",
+      "solid": true,
+      "type": "wall_right",
+      "layer": "middleground"
+    },
+    "18": {
+      "path": "assets/freetileset/png/Tiles/18.png",
+      "solid": true,
+      "oneWay": true,
+      "type": "cloud_platform",
+      "layer": "middleground"
+    }
+  }
+}

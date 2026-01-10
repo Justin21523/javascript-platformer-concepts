@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Vanilla Platformer JS - Module 5</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="top-title">Vanilla Platformer - Debug 快捷鍵</div>
+      <div class="top-keys">
+        F1 Overlay · F2 Hitbox · F3 慢動作 · F4 Grid · F6 Panel · F7 Level · ` 暫停 · . 單步 · F12 截圖
+      </div>
+    </div>
+    <div id="loadingOverlay">
+      <div class="loading-box">
+        <div class="loading-bar"><div class="loading-fill"></div></div>
+        <div class="loading-text">載入中...</div>
+      </div>
+    </div>
+    <div class="game-container">
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+      <div class="debug-info">
+        <p>移動 WASD/方向鍵 · Space 跳 · K Hyperdrive · X 無敵桌布 · V 派對桌布 · 光道後 1/2/3 選單</p>
+      </div>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

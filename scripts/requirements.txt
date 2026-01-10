@@ -1,0 +1,20 @@
+# Python Dependencies for SD Asset Generation Scripts
+# SD 素材生成腳本 Python 依賴套件
+#
+# Environment: conda ai_env
+#
+# Installation:
+#   conda activate ai_env
+#   pip install -r requirements.txt
+#
+# For GPU acceleration (optional):
+#   pip install rembg[gpu]
+
+# Core dependencies
+requests>=2.31.0        # For SD WebUI API calls
+Pillow>=10.0.0          # Image processing
+rembg>=2.0.50           # Background removal
+
+# Optional but recommended
+numpy>=1.24.0           # Numerical operations (rembg dependency)
+tqdm>=4.66.0            # Progress bars

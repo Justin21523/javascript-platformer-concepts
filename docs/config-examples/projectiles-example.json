@@ -1,0 +1,62 @@
+{
+  "bullet": {
+    "path": "assets/projectiles/bullet",
+    "animated": false,
+    "frameCount": 1,
+    "width": 16,
+    "height": 8,
+    "speed": 600,
+    "damage": 15,
+    "lifetime": 2.0,
+    "piercing": false
+  },
+  "arrow": {
+    "path": "assets/projectiles/arrow",
+    "animated": true,
+    "frameCount": 4,
+    "frameDuration": 0.1,
+    "width": 32,
+    "height": 8,
+    "speed": 500,
+    "damage": 20,
+    "lifetime": 3.0,
+    "piercing": false
+  },
+  "fireball": {
+    "path": "assets/projectiles/fireball",
+    "animated": true,
+    "frameCount": 6,
+    "frameDuration": 0.08,
+    "width": 32,
+    "height": 32,
+    "speed": 400,
+    "damage": 25,
+    "lifetime": 2.5,
+    "piercing": false,
+    "explosionOnHit": "explosion-small"
+  },
+  "magic-orb": {
+    "path": "assets/projectiles/magic-orb",
+    "animated": true,
+    "frameCount": 8,
+    "frameDuration": 0.06,
+    "width": 24,
+    "height": 24,
+    "speed": 350,
+    "damage": 18,
+    "lifetime": 3.0,
+    "piercing": true
+  },
+  "laser": {
+    "path": "assets/projectiles/laser",
+    "animated": true,
+    "frameCount": 3,
+    "frameDuration": 0.05,
+    "width": 48,
+    "height": 12,
+    "speed": 800,
+    "damage": 30,
+    "lifetime": 1.5,
+    "piercing": true
+  }
+}

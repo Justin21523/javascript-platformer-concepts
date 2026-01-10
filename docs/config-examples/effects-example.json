@@ -1,0 +1,98 @@
+{
+  "slash": {
+    "path": "assets/effects/combat/slash",
+    "frameCount": 8,
+    "frameDuration": 0.04,
+    "loop": false,
+    "width": 64,
+    "height": 64
+  },
+  "hit-impact": {
+    "path": "assets/effects/combat/hit-impact",
+    "frameCount": 6,
+    "frameDuration": 0.05,
+    "loop": false,
+    "width": 48,
+    "height": 48
+  },
+  "punch": {
+    "path": "assets/effects/combat/punch",
+    "frameCount": 8,
+    "frameDuration": 0.045,
+    "loop": false,
+    "width": 56,
+    "height": 56
+  },
+  "spark": {
+    "path": "assets/effects/combat/spark",
+    "frameCount": 8,
+    "frameDuration": 0.03,
+    "loop": false,
+    "width": 32,
+    "height": 32
+  },
+  "explosion-small": {
+    "path": "assets/effects/explosion/small",
+    "frameCount": 10,
+    "frameDuration": 0.05,
+    "loop": false,
+    "width": 64,
+    "height": 64
+  },
+  "explosion-medium": {
+    "path": "assets/effects/explosion/medium",
+    "frameCount": 12,
+    "frameDuration": 0.06,
+    "loop": false,
+    "width": 96,
+    "height": 96
+  },
+  "explosion-large": {
+    "path": "assets/effects/explosion/large",
+    "frameCount": 15,
+    "frameDuration": 0.07,
+    "loop": false,
+    "width": 128,
+    "height": 128
+  },
+  "dust": {
+    "path": "assets/effects/smoke/dust",
+    "frameCount": 8,
+    "frameDuration": 0.06,
+    "loop": false,
+    "width": 48,
+    "height": 32
+  },
+  "smoke-cloud": {
+    "path": "assets/effects/smoke/cloud",
+    "frameCount": 10,
+    "frameDuration": 0.08,
+    "loop": false,
+    "width": 64,
+    "height": 64
+  },
+  "coin-sparkle": {
+    "path": "assets/effects/pickup/coin-sparkle",
+    "frameCount": 8,
+    "frameDuration": 0.06,
+    "loop": false,
+    "width": 32,
+    "height": 32
+  },
+  "star-shine": {
+    "path": "assets/effects/pickup/star-shine",
+    "frameCount": 10,
+    "frameDuration": 0.05,
+    "loop": false,
+    "width": 48,
+    "height": 48
+  },
+  "item-glow": {
+    "path": "assets/effects/pickup/item-glow",
+    "frameCount": 12,
+    "frameDuration": 0.07,
+    "loop": true,
+    "width": 64,
+    "height": 64
+  }
+}
