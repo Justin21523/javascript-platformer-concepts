@@ -9,7 +9,10 @@
     "preview": "vite preview",
     "lint": "node scripts/lint-js.mjs",
     "smoke": "playwright test --config=playwright.config.js",
-    "demo:assets": "node scripts/capture-demo.mjs"
+    "demo:assets": "node scripts/capture-demo.mjs",
+    "demo:dev": "python3 -m http.server 4173 --directory demo-app",
+    "demo:build": "node -e \"require('fs').accessSync('demo-app/index.html')\"",
+    "demo:preview": "python3 -m http.server 4173 --directory demo-app"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",
