@@ -7,6 +7,7 @@ export const TIME_SCALE_DEFAULT = 1.0;
 
 // Multi-speed time scaling options
 export const TIME_SCALES = [0.1, 0.5, 1.0, 2.0];
+const DEMO_MODE = new URLSearchParams(window.location.search).has("demo");
 
 // Load saved settings from localStorage
 function loadSettings() {
@@ -43,12 +44,12 @@ const savedSettings = loadSettings();
 
 // Debug 狀態變數 (模組內部狀態)
 let debugState = {
-  showOverlay: savedSettings?.showOverlay ?? SHOW_OVERLAY,
-  showHitbox: savedSettings?.showHitbox ?? SHOW_HITBOX,
-  showTileGrid: savedSettings?.showTileGrid ?? SHOW_TILE_GRID,
+  showOverlay: DEMO_MODE ? true : savedSettings?.showOverlay ?? SHOW_OVERLAY,
+  showHitbox: DEMO_MODE ? false : savedSettings?.showHitbox ?? SHOW_HITBOX,
+  showTileGrid: DEMO_MODE ? false : savedSettings?.showTileGrid ?? SHOW_TILE_GRID,
   showVelocityVectors: savedSettings?.showVelocityVectors ?? false,
-  timeScaleIndex: savedSettings?.timeScaleIndex ?? 2, // Default to 1.0x (index 2)
-  timeScale: TIME_SCALES[savedSettings?.timeScaleIndex ?? 2],
+  timeScaleIndex: DEMO_MODE ? 2 : savedSettings?.timeScaleIndex ?? 2,
+  timeScale: TIME_SCALES[DEMO_MODE ? 2 : savedSettings?.timeScaleIndex ?? 2],
   paused: false,
   showPanel: savedSettings?.showPanel ?? false,
 };

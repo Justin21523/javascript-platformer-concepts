@@ -6,28 +6,95 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <title>Vanilla Platformer JS - Module 5</title>
+    <title>JavaScript Platformer Concepts</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="top-bar">
-      <div class="top-title">Vanilla Platformer - Debug 快捷鍵</div>
-      <div class="top-keys">
-        F1 Overlay · F2 Hitbox · F3 慢動作 · F4 Grid · F6 Panel · F7 Level · ` 暫停 · . 單步 · F12 截圖
-      </div>
-    </div>
-    <div id="loadingOverlay">
-      <div class="loading-box">
-        <div class="loading-bar"><div class="loading-fill"></div></div>
-        <div class="loading-text">載入中...</div>
-      </div>
-    </div>
-    <div class="game-container">
-      <canvas id="gameCanvas" width="1280" height="720"></canvas>
-      <div class="debug-info">
-        <p>移動 WASD/方向鍵 · Space 跳 · K Hyperdrive · X 無敵桌布 · V 派對桌布 · 光道後 1/2/3 選單</p>
-      </div>
-    </div>
+    <main class="showcase-shell">
+      <section class="product-stage" aria-label="Playable platformer demo">
+        <div class="stage-header">
+          <div>
+            <p class="eyebrow">Canvas ECS Platformer Demo</p>
+            <h1>JavaScript Platformer Concepts</h1>
+          </div>
+          <div class="stage-pills" aria-label="Runtime status">
+            <span>Vite static build</span>
+            <span>Vanilla ECS</span>
+            <span>No backend</span>
+          </div>
+        </div>
+
+        <div class="game-frame">
+          <div id="loadingOverlay">
+            <div class="loading-box">
+              <div class="loading-bar"><div class="loading-fill"></div></div>
+              <div class="loading-text">Loading demo...</div>
+            </div>
+          </div>
+          <canvas id="gameCanvas" width="1280" height="720"></canvas>
+        </div>
+
+        <div class="control-strip" aria-label="Game controls">
+          <span>Move: WASD / Arrow Keys</span>
+          <span>Jump: Space</span>
+          <span>Hyperdrive: K</span>
+          <span>Attack: J / L</span>
+          <span>Debug: F1-F7</span>
+        </div>
+      </section>
+
+      <aside class="demo-panel" aria-label="Demo guide">
+        <div class="panel-section scorecard">
+          <p class="eyebrow">Portfolio-ready state</p>
+          <h2>Built to show engine fundamentals fast</h2>
+          <p>
+            A pure JavaScript action-platformer prototype with custom ECS, fixed-step physics,
+            AABB collision, procedural levels, parallax backgrounds, combat, collectibles, and
+            debug instrumentation.
+          </p>
+        </div>
+
+        <div class="panel-section">
+          <h3>Demo route</h3>
+          <ol class="flow-list">
+            <li><span>01</span> Spawn into the procedural plains level.</li>
+            <li><span>02</span> Move, jump, and watch camera follow + collision.</li>
+            <li><span>03</span> Toggle F1/F2/F4 to inspect ECS debug data.</li>
+            <li><span>04</span> Use K Hyperdrive and combat enemies.</li>
+            <li><span>05</span> Open F7 to switch fixed/procedural levels.</li>
+          </ol>
+        </div>
+
+        <div class="panel-section metrics-grid">
+          <div>
+            <strong>52</strong>
+            <span>runtime modules</span>
+          </div>
+          <div>
+            <strong>20+</strong>
+            <span>ECS systems</span>
+          </div>
+          <div>
+            <strong>60Hz</strong>
+            <span>fixed timestep</span>
+          </div>
+          <div>
+            <strong>0</strong>
+            <span>runtime deps</span>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h3>Interview highlights</h3>
+          <ul class="highlight-list">
+            <li>Data-driven Entity-Component-System architecture.</li>
+            <li>Procedural level generator backed by deterministic seeds.</li>
+            <li>Canvas renderer with layered tilemaps and parallax depth.</li>
+            <li>Debug overlays designed for manual QA and demo capture.</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

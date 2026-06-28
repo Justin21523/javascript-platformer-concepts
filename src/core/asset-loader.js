@@ -14,6 +14,17 @@ export class AssetLoader {
     this.total = 0;
   }
 
+  resolvePath(path) {
+    if (!path || /^(https?:)?\/\//.test(path) || path.startsWith("data:")) {
+      return path;
+    }
+
+    const base = import.meta.env?.BASE_URL || "/";
+    const normalizedBase = base.endsWith("/") ? base : `${base}/`;
+    const normalizedPath = path.replace(/^\/+/, "");
+    return `${normalizedBase}${normalizedPath}`;
+  }
+
   /**
    * Load an image and cache it
    * @param {string} path - Image file path
@@ -21,6 +32,8 @@ export class AssetLoader {
    */
   loadImage(path) {
     // Return cached image if already loaded
+    const resolvedPath = this.resolvePath(path);
+
     if (this.images.has(path)) {
       return Promise.resolve(this.images.get(path));
     }
@@ -49,7 +62,7 @@ export class AssetLoader {
         reject(error);
       };
 
-      img.src = path;
+      img.src = resolvedPath;
     });
 
     this.loading.set(path, promise);
@@ -74,7 +87,7 @@ export class AssetLoader {
     }
 
     // Start new load
-    const promise = fetch(path)
+    const promise = fetch(this.resolvePath(path))
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}: ${path}`);

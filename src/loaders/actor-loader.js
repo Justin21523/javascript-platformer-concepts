@@ -19,7 +19,7 @@ export class ActorLoader {
   async loadActor(actorName, config) {
     debugLog("ActorLoader", `Loading actor: ${actorName}`);
 
-    const basePath = config.basePath || `/sprites/player/${actorName}`;
+    const basePath = config.basePath || `assets/sprites/player/${actorName}`;
     const animations = {};
 
     // Load all animations

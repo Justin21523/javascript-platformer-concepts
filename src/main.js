@@ -59,6 +59,7 @@ const ctx = canvas.getContext("2d");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingFill = document.querySelector(".loading-fill");
 const loadingText = document.querySelector(".loading-text");
+const demoMode = new URLSearchParams(window.location.search).has("demo");
 
 // Set Canvas size
 canvas.width = RENDER.CANVAS_WIDTH;
@@ -109,7 +110,7 @@ async function init() {
   // Load JackOLantern actor
   const actorLoader = new ActorLoader();
   await actorLoader.loadActor("JackOLantern", {
-    basePath: "/sprites/player/JackOLantern",
+    basePath: "assets/sprites/player/JackOLantern",
     width: 120,
     height: 180,
     frameDuration: 0.08, // Faster animation
@@ -200,20 +201,28 @@ async function init() {
 
   // Configure parallax background layers for GROUND layer (from far to near)
   // Use repeat to enable horizontal looping like the tilemap
-  systems.parallax.addLayer("ground", "/background/layer-1.png", 0.1, 0, 0, true, 1.0);
-  systems.parallax.addLayer("ground", "/background/layer-2.png", 0.2, 0, 0, true, 1.0);
-  systems.parallax.addLayer("ground", "/background/layer-3.png", 0.4, 0, 0, true, 1.0);
-  systems.parallax.addLayer("ground", "/background/layer-4.png", 0.6, 0, 0, true, 1.0);
+  systems.parallax.addLayer("ground", "assets/background/layer-1.png", 0.1, 0, 0, true, 1.0);
+  systems.parallax.addLayer("ground", "assets/background/layer-2.png", 0.2, 0, 0, true, 1.0);
+  systems.parallax.addLayer("ground", "assets/background/layer-3.png", 0.4, 0, 0, true, 1.0);
+  systems.parallax.addLayer("ground", "assets/background/layer-4.png", 0.6, 0, 0, true, 1.0);
 
   // Configure parallax background layers for SKY layer (simpler, more atmospheric)
   // Sky background: lighter, cloudier, more vertical parallax
-  systems.parallax.addLayer("sky", "/background/layer-1.png", 0.05, 0.1, 0, true, 1.0);
-  systems.parallax.addLayer("sky", "/background/layer-2.png", 0.1, 0.2, 0, true, 1.0);
+  systems.parallax.addLayer("sky", "assets/background/layer-1.png", 0.05, 0.1, 0, true, 1.0);
+  systems.parallax.addLayer("sky", "assets/background/layer-2.png", 0.1, 0.2, 0, true, 1.0);
 
   // Load parallax images
   await systems.parallax.loadImages();
   if (loadingOverlay) loadingOverlay.style.display = "none";
   if (loadingTimer) clearInterval(loadingTimer);
+  document.body.dataset.demoReady = "true";
+  window.__PLATFORMER_DEMO__ = {
+    ready: true,
+    mode: demoMode ? "demo" : "interactive",
+    level: levelManager.currentLevelId,
+    frames: 0,
+    playerEntity: null,
+  };
 
   // Set camera and infinite world references for parallax system
   systems.parallax.cameraSystem = systems.camera;
@@ -337,6 +346,9 @@ async function init() {
 
   // Store player ID for other systems
   world.player = player;
+  if (window.__PLATFORMER_DEMO__) {
+    window.__PLATFORMER_DEMO__.playerEntity = player;
+  }
 
   // Create dummy enemy for testing combat
   const dummy = createBasicEnemy(world, {
@@ -435,6 +447,7 @@ async function init() {
 let frameCount = 0;
 let fpsTime = 0;
 let currentFPS = 60;
+let demoFrameCount = 0;
 
 // Game main loop
 const FIXED_DT = 1 / 60;
@@ -459,12 +472,17 @@ function gameLoop(now) {
   // FPS calculation
   fpsTime += rawDt;
   frameCount++;
+  demoFrameCount++;
   if (fpsTime >= 1.0) {
     currentFPS = Math.round(frameCount / fpsTime);
     frameCount = 0;
     fpsTime = 0;
   }
   world.currentFPS = currentFPS;
+  if (window.__PLATFORMER_DEMO__) {
+    window.__PLATFORMER_DEMO__.frames = demoFrameCount;
+    window.__PLATFORMER_DEMO__.fps = currentFPS;
+  }
 
   // 固定步長更新 (除非暫停)
   while (acc >= FIXED_DT && !shouldPauseUpdate()) {
@@ -682,6 +700,11 @@ debugLog(
 // Initialize and start (async)
 init().catch((error) => {
   console.error("Failed to initialize game:", error);
+  window.__PLATFORMER_DEMO__ = {
+    ready: false,
+    error: error.message,
+  };
+  document.body.dataset.demoReady = "error";
   document.body.innerHTML += `<div style="color: red; padding: 20px;">
     <h2>Failed to load game</h2>
     <p>${error.message}</p>
